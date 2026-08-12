@@ -53,10 +53,11 @@ export default function Home() {
   const visible = useMemo(() => {
     const result = activeCards.filter((card) =>
       (category === "All" || card.category === category) &&
-      (filter === "all" || progress[card.id]?.status === filter)
+      (filter === "all" || progress[card.id]?.status === filter) &&
+      (!gameCards || !sessionMarks[card.id])
     );
     return drawMode === "alphabetical" ? [...result].sort((a, b) => a.de.localeCompare(b.de, "de")) : result;
-  }, [activeCards, category, filter, progress, drawMode]);
+  }, [activeCards, category, filter, progress, drawMode, gameCards, sessionMarks]);
   const card = ready ? visible[current % Math.max(visible.length, 1)] : undefined;
   const counts = cards.reduce((acc, item) => { acc[progress[item.id]?.status ?? "new"]++; return acc; }, { new: 0, review: 0, learned: 0 });
 
@@ -88,7 +89,8 @@ export default function Home() {
       const streak = known ? old.streak + 1 : 0;
       return { ...prev, [card.id]: { streak, status: known && streak >= 3 ? "learned" : "review" } };
     });
-    advance();
+    setCurrent(0);
+    setFlipped(false);
   }
 
   function shuffle() {
@@ -297,7 +299,12 @@ export default function Home() {
             <button className="miss" disabled={!flipped} onClick={() => mark(false)}><span>×</span><div><b>Not yet</b><small>Move to review</small></div></button>
             <button className="know" disabled={!flipped} onClick={() => mark(true)}><span>✓</span><div><b>Got it</b><small>3 correct → learned</small></div></button>
           </div>
-        </> : <div className="empty"><b>This pool is empty for now.</b><p>Choose another pool or category.</p></div>}
+        </> : sessionDone === gameCards.length ? <div className="gameComplete">
+          <p className="eyebrow">SESSION COMPLETE</p><h2>You finished the lake.</h2>
+          <p>Every card in this game was shown exactly once.</p>
+          <div><span><b>{gameCards.length}</b><small>Cards</small></span><span><b>{sessionCorrect}</b><small>Got it</small></span><span><b>{sessionReview}</b><small>Review</small></span></div>
+          <button onClick={() => { setGameCards(null); setSessionMarks({}); setCurrent(0); }}>Back to home</button>
+        </div> : <div className="empty"><b>This filtered pool is complete.</b><p>Choose “All cards” or another category to continue the game.</p></div>}
       </section>
       <footer><span>Complete deck · {cards.length} cards · Random by default</span><span>Choose A–Z for alphabetical order. Progress is saved on this device.</span></footer>
     </main>

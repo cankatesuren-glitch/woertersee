@@ -26,6 +26,10 @@ export default function Home() {
   const [newCategory, setNewCategory] = useState("My words");
   const [managingWords, setManagingWords] = useState(false);
   const [editingWord, setEditingWord] = useState<string | null>(null);
+  const [wordSearch, setWordSearch] = useState("");
+  const [wordCategoryFilter, setWordCategoryFilter] = useState("All");
+  const [wordSort, setWordSort] = useState<"newest" | "az">("newest");
+  const [savedSession, setSavedSession] = useState<{ gameIds: string[]; baseIds: string[]; marks: Record<string, "review" | "correct"> } | null>(null);
   const cards = useMemo(() => [...builtInCards, ...customCards], [customCards]);
   const categories = useMemo(() => [...new Set(cards.map((item) => item.category))], [cards]);
   const [gameSetup, setGameSetup] = useState(false);
@@ -46,6 +50,8 @@ export default function Home() {
     if (savedSeen) setSeenCards(JSON.parse(savedSeen));
     const savedResults = localStorage.getItem("woertersee-lifetime-results-v1");
     if (savedResults) setLifetimeResults(JSON.parse(savedResults));
+    const activeSession = localStorage.getItem("woertersee-active-session-v1");
+    if (activeSession) setSavedSession(JSON.parse(activeSession));
     setCurrent(Math.floor(Math.random() * builtInCards.length));
     setReady(true);
   }, []);
@@ -65,6 +71,12 @@ export default function Home() {
   useEffect(() => {
     if (ready) localStorage.setItem("woertersee-lifetime-results-v1", JSON.stringify(lifetimeResults));
   }, [lifetimeResults, ready]);
+
+  useEffect(() => {
+    if (!ready) return;
+    if (gameCards) localStorage.setItem("woertersee-active-session-v1", JSON.stringify({ gameIds: gameCards.map((item) => item.id), baseIds: (baseGameCards ?? gameCards).map((item) => item.id), marks: sessionMarks }));
+    else localStorage.removeItem("woertersee-active-session-v1");
+  }, [ready, gameCards, baseGameCards, sessionMarks]);
 
   const visible = useMemo(() => {
     const result = activeCards.filter((card) =>
@@ -218,12 +230,50 @@ export default function Home() {
     setFlipped(false);
   }
 
+  function startUnseenGame(count = 50) {
+    const unseen = shuffled(cards.filter((item) => !seenCards.includes(item.id))).slice(0, count);
+    if (!unseen.length) return;
+    setGameCards(unseen); setBaseGameCards(unseen); setSessionMarks({}); setCategory("All"); setFilter("all"); setDrawMode("random"); setCurrent(0); setFlipped(false);
+  }
+
+  function startMixedGame(count = 50) {
+    startQuickGame(count);
+  }
+
+  function resumeSavedGame() {
+    if (!savedSession) return;
+    const lookup = new Map(cards.map((item) => [item.id, item]));
+    const game = savedSession.gameIds.map((id) => lookup.get(id)).filter(Boolean) as Card[];
+    const base = savedSession.baseIds.map((id) => lookup.get(id)).filter(Boolean) as Card[];
+    if (!game.length) return;
+    setGameCards(game); setBaseGameCards(base.length ? base : game); setSessionMarks(savedSession.marks); setCategory("All"); setFilter("all"); setCurrent(0); setFlipped(false);
+  }
+
+  function exportMyWords() {
+    const rows = [["German","English","Category","Note"], ...customCards.map((item) => [item.de,item.en,item.category,item.detail ?? ""])];
+    const csv = rows.map((row) => row.map((cell) => `"${cell.replaceAll('"','""')}"`).join(",")).join("\n");
+    const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type:"text/csv" })); link.download = "woertersee-my-words.csv"; link.click(); URL.revokeObjectURL(link.href);
+  }
+
+  function importMyWords(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]; if (!file) return;
+    file.text().then((text) => {
+      const lines = text.split(/\r?\n/).slice(1).filter(Boolean);
+      const imported = lines.map((line, index) => { const values = [...line.matchAll(/"((?:[^"]|"")*)"(?:,|$)/g)].map((match) => match[1].replaceAll('""','"')); return { id:`custom-${Date.now()}-${index}`, de:values[0]?.trim(), en:values[1]?.trim(), category:values[2]?.trim() || "My words", detail:values[3]?.trim() || undefined } as Card; }).filter((item) => item.de && item.en);
+      setCustomCards((items) => [...items, ...imported]);
+    }); event.target.value = "";
+  }
+
+  const displayedCustomCards = [...customCards].filter((item) => (wordCategoryFilter === "All" || item.category === wordCategoryFilter) && `${item.de} ${item.en} ${item.detail ?? ""}`.toLowerCase().includes(wordSearch.toLowerCase())).sort((a,b) => wordSort === "az" ? a.de.localeCompare(b.de,"de") : b.id.localeCompare(a.id));
+
   const sessionReview = Object.values(sessionMarks).filter((value) => value === "review").length;
   const sessionCorrect = Object.values(sessionMarks).filter((value) => value === "correct").length;
   const sessionDone = Object.keys(sessionMarks).length;
   const lifetimeCorrect = Object.values(lifetimeResults).filter((value) => value === "correct").length;
   const lifetimeReview = Object.values(lifetimeResults).filter((value) => value === "review").length;
   const lifetimeSeen = Object.keys(lifetimeResults).length;
+  const sessionMistakes = gameCards?.filter((item) => sessionMarks[item.id] === "review") ?? [];
+  const sessionCategories = gameCards ? [...new Set(gameCards.filter((item) => sessionMarks[item.id]).map((item) => item.category))].map((name) => { const items = gameCards.filter((item) => item.category === name && sessionMarks[item.id]); return { name, correct: items.filter((item) => sessionMarks[item.id] === "correct").length, total: items.length }; }) : [];
 
   function restartDeck(onlyMistakes = false) {
     if (!gameCards) return;
@@ -264,11 +314,12 @@ export default function Home() {
         <h1>Choose your next<br/><em>study session.</em></h1>
         <p className="intro">Start immediately with a balanced random deck, or create a focused game from the categories you want to practise.</p>
       </section>
+      {savedSession && <section className="resumeBanner"><div><b>Continue your game</b><span>{Object.keys(savedSession.marks).length} of {savedSession.gameIds.length} cards completed</span></div><button onClick={resumeSavedGame}>Continue</button><button className="discard" onClick={() => { localStorage.removeItem("woertersee-active-session-v1"); setSavedSession(null); }}>Discard</button></section>}
       <section className="startOptions">
         <article className="quickStartCard">
           <span className="optionNumber">01</span><p className="eyebrow">QUICK START</p>
-          <h2>Jump into the lake.</h2><p>Draw a balanced random selection from the complete vocabulary pool.</p>
-          <div className="landingCounts">{[25,50,100,200].map((count) => <button key={count} onClick={() => startQuickGame(count)}><b>{count}</b><span>cards</span></button>)}</div>
+          <h2>Choose a purpose.</h2><p>Continue with new words, practise difficult ones, or mix the complete lake.</p>
+          <div className="purposeStarts"><button disabled={!cards.some((item) => !seenCards.includes(item.id))} onClick={() => startUnseenGame(50)}><b>Continue unseen</b><span>{cards.filter((item) => !seenCards.includes(item.id)).length} available</span></button><button disabled={!lifetimeReview} onClick={startDifficultGame}><b>Review difficult</b><span>{lifetimeReview} available</span></button><button onClick={() => startMixedGame(50)}><b>Mixed practice</b><span>50 cards</span></button></div>
         </article>
         <article className="customStartCard">
           <span className="optionNumber">02</span><p className="eyebrow">BUILD A GAME</p>
@@ -300,8 +351,8 @@ export default function Home() {
       </section>
       <section className="myWordsSection">
         <button className="myWordsToggle" onClick={() => setManagingWords((value) => !value)}><span><b>My Words</b><small>View and edit your personal vocabulary</small></span><strong>{customCards.length}</strong><i>{managingWords ? "−" : "+"}</i></button>
-        {managingWords && <div className="myWordsPanel">
-          {!customCards.length ? <div className="noPersonalWords"><b>No personal words yet.</b><span>Use “Add my word” above to create your first card.</span></div> : customCards.map((item) => <article className="personalWord" key={item.id}>
+        {managingWords && <div className="myWordsPanel"><div className="wordTools"><input value={wordSearch} onChange={(e) => setWordSearch(e.target.value)} placeholder="Search my words"/><select value={wordCategoryFilter} onChange={(e) => setWordCategoryFilter(e.target.value)}><option>All</option>{[...new Set(customCards.map((item) => item.category))].map((name) => <option key={name}>{name}</option>)}</select><select value={wordSort} onChange={(e) => setWordSort(e.target.value as "newest"|"az")}><option value="newest">Newest first</option><option value="az">A–Z</option></select><button onClick={exportMyWords} disabled={!customCards.length}>Export CSV</button><label className="importCsv">Import CSV<input type="file" accept=".csv,text/csv" onChange={importMyWords}/></label></div>
+          {!displayedCustomCards.length ? <div className="noPersonalWords"><b>No matching personal words.</b><span>Use “Add my word” above or change your filters.</span></div> : displayedCustomCards.map((item) => <article className="personalWord" key={item.id}>
             {editingWord === item.id ? <div className="wordEditGrid">
               <label>German<input value={item.de} onChange={(e) => updateCustomCard(item.id, "de", e.target.value)} /></label>
               <label>English<input value={item.en} onChange={(e) => updateCustomCard(item.id, "en", e.target.value)} /></label>
@@ -312,6 +363,7 @@ export default function Home() {
           </article>)}
         </div>}
       </section>
+      <section className="progressSettings"><details><summary>Progress settings</summary><div><button disabled={!seenCards.length} onClick={resetSeenHistory}>Reset unseen history</button><button disabled={!Object.keys(lifetimeResults).length} onClick={() => { if (window.confirm("Reset Known and Difficult progress? Your personal words will stay.")) { setLifetimeResults({}); setProgress(emptyProgress); } }}>Reset learning progress</button><button className="danger" onClick={() => { if (window.confirm("Reset all progress and unseen history? Your personal words will stay.")) { setSeenCards([]); setLifetimeResults({}); setProgress(emptyProgress); localStorage.removeItem("woertersee-active-session-v1"); setSavedSession(null); } }}>Reset all progress</button></div></details></section>
       <section className="landingFooter"><div><b>{cards.length}</b><span>Total words</span></div><div><b>{categories.length}</b><span>Categories</span></div><div><b>{customCards.length}</b><span>My words</span></div><p>Your progress and personal words stay saved in this browser.</p></section>
     </main>
   );
@@ -320,7 +372,7 @@ export default function Home() {
     <main>
       <header className="topbar">
         <a className="brand" href="#">Wörter<span>see</span></a>
-        <div className="headerActions"><button className="endGame" onClick={() => { setGameCards(null); setBaseGameCards(null); setCurrent(0); setSessionMarks({}); }}>← Exit game</button><div className="session"><span className="pulse" /> Game progress <strong>{sessionDone}</strong> / {gameCards.length}</div></div>
+        <div className="headerActions"><button className="endGame" onClick={() => { setGameCards(null); setBaseGameCards(null); setSavedSession(null); setCurrent(0); setSessionMarks({}); }}>← Exit game</button><div className="session"><span className="pulse" /> Game progress <strong>{sessionDone}</strong> / {gameCards.length}</div></div>
       </header>
 
       {gameSetup && <div className="gameOverlay" onClick={() => setGameSetup(false)}>
@@ -340,7 +392,7 @@ export default function Home() {
         <div>
           <p className="eyebrow">GERMAN VOCABULARY GAME</p>
           <h1>Flip. Recall.<br/><em>Grow your pool.</em></h1>
-          <p className="intro">Flip a card and check your answer. Difficult words return to your review pool; mastered words move to your learned pool.</p>
+          <p className="intro">Flip a card and check your answer. Difficult words stay ready for focused practice; three correct answers mark a word as known.</p>
         </div>
         <div className="stats sessionStats">
           <button><b>{gameCards.length}</b><span>Deck</span></button>
@@ -372,19 +424,21 @@ export default function Home() {
             <div className="flipHint">{flipped ? "Tap to flip back" : "Tap to reveal the answer"} <span>↻</span></div>
           </button>
           <div className="actions">
-            <button className="miss" disabled={!flipped} onClick={() => mark(false)}><span>×</span><div><b>Not yet</b><small>Move to review</small></div></button>
-            <button className="know" disabled={!flipped} onClick={() => mark(true)}><span>✓</span><div><b>Got it</b><small>3 correct → learned</small></div></button>
+            <button className="miss" disabled={!flipped} onClick={() => mark(false)}><span>×</span><div><b>Not yet</b><small>Mark as difficult</small></div></button>
+            <button className="know" disabled={!flipped} onClick={() => mark(true)}><span>✓</span><div><b>Got it</b><small>{Math.min((progress[card.id]?.streak ?? 0) + 1, 3)}/3 toward known</small></div></button>
           </div>
           <button className="finishGameBelow" disabled={!sessionDone || sessionDone === gameCards.length} onClick={finishGameEarly}>Finish game and see results · {sessionDone} cards completed</button>
         </> : sessionDone === gameCards.length ? <div className="gameComplete">
-          <p className="eyebrow">SESSION COMPLETE</p><h2>You finished the lake.</h2>
+          <p className="eyebrow">SESSION COMPLETE</p><h2>{sessionDone ? Math.round((sessionCorrect/sessionDone)*100) : 0}% correct.</h2>
           <p>Your results include every card completed in this session.</p>
           <div><span><b>{gameCards.length}</b><small>Cards</small></span><span><b>{sessionCorrect}</b><small>Got it</small></span><span><b>{sessionReview}</b><small>Review</small></span></div>
           <section className="resultLifetime"><b>Lifetime unique score</b><span>{lifetimeCorrect} known · {lifetimeReview} difficult · {lifetimeSeen} played</span></section>
+          {sessionMistakes.length > 0 && <section className="mistakeList"><b>Words to revisit</b><div>{sessionMistakes.map((item) => <span key={item.id}><strong>{item.de}</strong><small>{item.en}</small></span>)}</div></section>}
+          {sessionCategories.length > 1 && <section className="categoryResults"><b>By category</b>{sessionCategories.map((item) => <span key={item.name}>{item.name}<small>{item.correct}/{item.total}</small></span>)}</section>}
           <div className="completeActions">
             {sessionReview > 0 && <button className="reviewMistakes" onClick={() => restartDeck(true)}>Review my mistakes · {sessionReview}</button>}
             <button className="replayDeck" onClick={() => restartDeck(false)}>Play original deck again · {baseGameCards?.length ?? gameCards.length}</button>
-            <button className="backHome" onClick={() => { setGameCards(null); setBaseGameCards(null); setSessionMarks({}); setCurrent(0); }}>Back to home</button>
+            <button className="backHome" onClick={() => { setGameCards(null); setBaseGameCards(null); setSavedSession(null); setSessionMarks({}); setCurrent(0); }}>Back to home</button>
           </div>
         </div> : <div className="empty"><b>This filtered pool is complete.</b><p>Choose “All cards” or another category to continue the game.</p></div>}
       </section>

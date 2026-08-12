@@ -30,6 +30,7 @@ export default function Home() {
   const [gameCount, setGameCount] = useState(200);
   const [gameCategories, setGameCategories] = useState<string[]>([]);
   const [gameCards, setGameCards] = useState<Card[] | null>(null);
+  const [baseGameCards, setBaseGameCards] = useState<Card[] | null>(null);
   const [sessionMarks, setSessionMarks] = useState<Record<string, "review" | "correct">>({});
   const activeCards = gameCards ?? cards;
 
@@ -160,7 +161,9 @@ export default function Home() {
       }
       round++;
     }
-    setGameCards(shuffled(chosen));
+    const deck = shuffled(chosen);
+    setGameCards(deck);
+    setBaseGameCards(deck);
     setSessionMarks({});
     setGameSetup(false);
     setCategory("All");
@@ -175,6 +178,7 @@ export default function Home() {
     setGameCategories(categories);
     const chosen = shuffled(cards).slice(0, Math.min(count, cards.length));
     setGameCards(chosen);
+    setBaseGameCards(chosen);
     setSessionMarks({});
     setCategory("All");
     setFilter("all");
@@ -189,7 +193,9 @@ export default function Home() {
 
   function restartDeck(onlyMistakes = false) {
     if (!gameCards) return;
-    const nextCards = onlyMistakes ? gameCards.filter((item) => sessionMarks[item.id] === "review") : gameCards;
+    const nextCards = onlyMistakes
+      ? gameCards.filter((item) => sessionMarks[item.id] === "review")
+      : (baseGameCards ?? gameCards);
     setGameCards(shuffled(nextCards));
     setSessionMarks({});
     setCategory("All");
@@ -256,7 +262,7 @@ export default function Home() {
     <main>
       <header className="topbar">
         <a className="brand" href="#">Wörter<span>see</span></a>
-        <div className="headerActions"><button className="endGame" onClick={() => { setGameCards(null); setCurrent(0); setSessionMarks({}); }}>← Exit game</button><div className="session"><span className="pulse" /> Game progress <strong>{sessionDone}</strong> / {gameCards.length}</div></div>
+        <div className="headerActions"><button className="endGame" onClick={() => { setGameCards(null); setBaseGameCards(null); setCurrent(0); setSessionMarks({}); }}>← Exit game</button><div className="session"><span className="pulse" /> Game progress <strong>{sessionDone}</strong> / {gameCards.length}</div></div>
       </header>
 
       {gameSetup && <div className="gameOverlay" onClick={() => setGameSetup(false)}>
@@ -317,8 +323,8 @@ export default function Home() {
           <div><span><b>{gameCards.length}</b><small>Cards</small></span><span><b>{sessionCorrect}</b><small>Got it</small></span><span><b>{sessionReview}</b><small>Review</small></span></div>
           <div className="completeActions">
             {sessionReview > 0 && <button className="reviewMistakes" onClick={() => restartDeck(true)}>Review my mistakes · {sessionReview}</button>}
-            <button className="replayDeck" onClick={() => restartDeck(false)}>Play this deck again</button>
-            <button className="backHome" onClick={() => { setGameCards(null); setSessionMarks({}); setCurrent(0); }}>Back to home</button>
+            <button className="replayDeck" onClick={() => restartDeck(false)}>Play original deck again · {baseGameCards?.length ?? gameCards.length}</button>
+            <button className="backHome" onClick={() => { setGameCards(null); setBaseGameCards(null); setSessionMarks({}); setCurrent(0); }}>Back to home</button>
           </div>
         </div> : <div className="empty"><b>This filtered pool is complete.</b><p>Choose “All cards” or another category to continue the game.</p></div>}
       </section>

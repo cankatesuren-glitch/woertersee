@@ -22,6 +22,8 @@ export default function Home() {
   const [newEnglish, setNewEnglish] = useState("");
   const [newNote, setNewNote] = useState("");
   const [newCategory, setNewCategory] = useState("My words");
+  const [managingWords, setManagingWords] = useState(false);
+  const [editingWord, setEditingWord] = useState<string | null>(null);
   const cards = useMemo(() => [...builtInCards, ...customCards], [customCards]);
   const categories = useMemo(() => [...new Set(cards.map((item) => item.category))], [cards]);
   const [gameSetup, setGameSetup] = useState(false);
@@ -127,6 +129,10 @@ export default function Home() {
     setFlipped(false);
   }
 
+  function updateCustomCard(id: string, field: "de" | "en" | "category" | "detail", value: string) {
+    setCustomCards((items) => items.map((item) => item.id === id ? { ...item, [field]: value } : item));
+  }
+
   function toggleGameCategory(item: string) {
     setGameCategories((items) => items.includes(item) ? items.filter((value) => value !== item) : [...items, item]);
   }
@@ -213,6 +219,20 @@ export default function Home() {
           <label>Note <small>optional</small><input value={newNote} onChange={(e) => setNewNote(e.target.value)} placeholder="Grammar or example" /></label>
           <button type="submit">Add to my pool</button><p>Saved only in this browser.</p>
         </form>}
+      </section>
+      <section className="myWordsSection">
+        <button className="myWordsToggle" onClick={() => setManagingWords((value) => !value)}><span><b>My Words</b><small>View and edit your personal vocabulary</small></span><strong>{customCards.length}</strong><i>{managingWords ? "−" : "+"}</i></button>
+        {managingWords && <div className="myWordsPanel">
+          {!customCards.length ? <div className="noPersonalWords"><b>No personal words yet.</b><span>Use “Add my word” above to create your first card.</span></div> : customCards.map((item) => <article className="personalWord" key={item.id}>
+            {editingWord === item.id ? <div className="wordEditGrid">
+              <label>German<input value={item.de} onChange={(e) => updateCustomCard(item.id, "de", e.target.value)} /></label>
+              <label>English<input value={item.en} onChange={(e) => updateCustomCard(item.id, "en", e.target.value)} /></label>
+              <label>Category<select value={item.category} onChange={(e) => updateCustomCard(item.id, "category", e.target.value)}><option>My words</option>{[...new Set(builtInCards.map((card) => card.category))].map((name) => <option key={name}>{name}</option>)}</select></label>
+              <label>Note<input value={item.detail ?? ""} onChange={(e) => updateCustomCard(item.id, "detail", e.target.value)} /></label>
+            </div> : <div className="wordSummary"><span><b>{item.de}</b><small>{item.category}</small></span><span><b>{item.en}</b>{item.detail && <small>{item.detail}</small>}</span></div>}
+            <div className="wordManagerActions"><button onClick={() => setEditingWord(editingWord === item.id ? null : item.id)}>{editingWord === item.id ? "Done" : "Edit"}</button><button className="deleteWord" onClick={() => { removeCustomCard(item.id); if (editingWord === item.id) setEditingWord(null); }}>Delete</button></div>
+          </article>)}
+        </div>}
       </section>
       <section className="landingFooter"><div><b>{cards.length}</b><span>Total words</span></div><div><b>{categories.length}</b><span>Categories</span></div><div><b>{customCards.length}</b><span>My words</span></div><p>Your progress and personal words stay saved in this browser.</p></section>
     </main>

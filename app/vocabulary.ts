@@ -1590,7 +1590,13 @@ depressiv sein|to be depressed`
 function parse(raw: string, category: string): Card[] {
   return raw.trim().split("\n").map((line, index) => {
     const [de, en] = line.split("|");
-    return { id: `${category}-${index}`, de, en, category, detail: category === "Irregular verbs" ? irregularForms[de] : undefined };
+    const detail = category === "Irregular verbs"
+      ? irregularForms[de]
+          ?.replace(/^Präsens:\s*/, "")
+          .replace(/\s*·\s*Präteritum:\s*/, ", ")
+          .replace(/\s*·\s*Perfekt:\s*/, ", ")
+      : undefined;
+    return { id: `${category}-${index}`, de, en, category, detail };
   });
 }
 

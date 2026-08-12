@@ -28,6 +28,7 @@ export default function Home() {
   const [gameCount, setGameCount] = useState(200);
   const [gameCategories, setGameCategories] = useState<string[]>([]);
   const [gameCards, setGameCards] = useState<Card[] | null>(null);
+  const [sessionMarks, setSessionMarks] = useState<Record<string, "review" | "correct">>({});
   const activeCards = gameCards ?? cards;
 
   useEffect(() => {
@@ -79,6 +80,7 @@ export default function Home() {
 
   function mark(known: boolean) {
     if (!card) return;
+    setSessionMarks((items) => ({ ...items, [card.id]: known ? "correct" : "review" }));
     setProgress((prev) => {
       const old = prev[card.id] ?? { status: "new" as Status, streak: 0 };
       const streak = known ? old.streak + 1 : 0;
@@ -151,6 +153,7 @@ export default function Home() {
       round++;
     }
     setGameCards(shuffled(chosen));
+    setSessionMarks({});
     setGameSetup(false);
     setCategory("All");
     setFilter("all");
@@ -159,11 +162,56 @@ export default function Home() {
     setFlipped(false);
   }
 
+  function startQuickGame(count = 50) {
+    setGameCount(count);
+    setGameCategories(categories);
+    const chosen = shuffled(cards).slice(0, Math.min(count, cards.length));
+    setGameCards(chosen);
+    setSessionMarks({});
+    setCategory("All");
+    setFilter("all");
+    setDrawMode("random");
+    setCurrent(0);
+    setFlipped(false);
+  }
+
+  const sessionReview = Object.values(sessionMarks).filter((value) => value === "review").length;
+  const sessionCorrect = Object.values(sessionMarks).filter((value) => value === "correct").length;
+  const sessionDone = Object.keys(sessionMarks).length;
+
+  if (!gameCards) return (
+    <main>
+      <header className="topbar"><a className="brand" href="#">Wörter<span>see</span></a><div className="session"><span className="pulse" /> Your vocabulary lake <strong>{cards.length}</strong> cards</div></header>
+      <section className="landingHero">
+        <p className="eyebrow">GERMAN VOCABULARY GAME</p>
+        <h1>Choose your next<br/><em>study session.</em></h1>
+        <p className="intro">Start immediately with a balanced random deck, or create a focused game from the categories you want to practise.</p>
+      </section>
+      <section className="startOptions">
+        <article className="quickStartCard">
+          <span className="optionNumber">01</span><p className="eyebrow">QUICK START</p>
+          <h2>Jump into the lake.</h2><p>Draw a balanced random selection from the complete vocabulary pool.</p>
+          <div className="landingCounts">{[25,50,100,200].map((count) => <button key={count} onClick={() => startQuickGame(count)}><b>{count}</b><span>cards</span></button>)}</div>
+        </article>
+        <article className="customStartCard">
+          <span className="optionNumber">02</span><p className="eyebrow">BUILD A GAME</p>
+          <h2>Make it your own.</h2><p>Set your deck size and choose exactly which categories should be included.</p>
+          <label className="countLabel">Number of cards<input type="number" min="1" max={cards.length} value={gameCount} onChange={(e) => setGameCount(Number(e.target.value))} /></label>
+          <div className="quickCounts">{[50,100,200,300].map((count) => <button key={count} className={gameCount === count ? "active" : ""} onClick={() => setGameCount(count)}>{count}</button>)}</div>
+          <div className="categoryHeading"><b>Categories</b><button onClick={() => setGameCategories(gameCategories.length === categories.length ? [] : categories)}>{gameCategories.length === categories.length ? "Clear all" : "Select all"}</button></div>
+          <div className="categoryGrid landingCategories">{categories.map((item) => <label key={item} className={gameCategories.includes(item) ? "selected" : ""}><input type="checkbox" checked={gameCategories.includes(item)} onChange={() => toggleGameCategory(item)} /><span>{item}</span><small>{cards.filter((card) => card.category === item).length}</small></label>)}</div>
+          <button className="startGame" disabled={!gameCategories.length || gameCount < 1} onClick={startCustomGame}>Start balanced game · {Math.min(gameCount || 0, cards.filter((item) => gameCategories.includes(item.category)).length)} cards</button>
+        </article>
+      </section>
+      <section className="landingFooter"><div><b>{cards.length}</b><span>Total words</span></div><div><b>{categories.length}</b><span>Categories</span></div><div><b>{customCards.length}</b><span>My words</span></div><p>Your progress and personal words stay saved in this browser.</p></section>
+    </main>
+  );
+
   return (
     <main>
       <header className="topbar">
         <a className="brand" href="#">Wörter<span>see</span></a>
-        <div className="headerActions"><button onClick={() => { setGameSetup(true); if (!gameCategories.length) setGameCategories(categories); }}>Build a game</button>{gameCards && <button className="endGame" onClick={() => { setGameCards(null); setCurrent(0); }}>Exit game</button>}<div className="session"><span className="pulse" /> {gameCards ? "Custom game" : "Today’s session"} <strong>{gameCards?.length ?? counts.review + counts.learned}</strong> / {gameCards ? gameCards.length : cards.length}</div></div>
+        <div className="headerActions"><button className="endGame" onClick={() => { setGameCards(null); setCurrent(0); setSessionMarks({}); }}>← Exit game</button><div className="session"><span className="pulse" /> Game progress <strong>{sessionDone}</strong> / {gameCards.length}</div></div>
       </header>
 
       {gameSetup && <div className="gameOverlay" onClick={() => setGameSetup(false)}>
@@ -185,12 +233,14 @@ export default function Home() {
           <h1>Flip. Recall.<br/><em>Grow your pool.</em></h1>
           <p className="intro">Flip a card and check your answer. Difficult words return to your review pool; mastered words move to your learned pool.</p>
         </div>
-        <div className="stats">
-          <button onClick={() => { setFilter("new"); resetDraw(category, "new"); }}><b>{counts.new}</b><span>New</span></button>
-          <button onClick={() => { setFilter("review"); resetDraw(category, "review"); }}><b>{counts.review}</b><span>Review</span></button>
-          <button onClick={() => { setFilter("learned"); resetDraw(category, "learned"); }}><b>{counts.learned}</b><span>Learned</span></button>
+        <div className="stats sessionStats">
+          <button><b>{gameCards.length}</b><span>Deck</span></button>
+          <button><b>{sessionReview}</b><span>Review pool</span></button>
+          <button><b>{sessionCorrect}</b><span>Got it</span></button>
         </div>
       </section>
+
+      <section className="gameProgress" aria-label="Game progress"><div style={{width:`${Math.round((sessionDone / Math.max(gameCards.length,1))*100)}%`}} /><span>{Math.round((sessionDone / Math.max(gameCards.length,1))*100)}% complete</span></section>
 
       <section className="workspace">
         <div className="controls">

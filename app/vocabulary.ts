@@ -1,5 +1,6 @@
 import { irregularForms } from "./irregular-forms";
 import { chapterAdditions } from "./chapter-additions";
+import { dativeAccusativeVerbs, dativeVerbs } from "./verb-case-groups";
 
 export type Card = { id: string; de: string; en: string; category: string; detail?: string; example?: string };
 
@@ -1590,18 +1591,19 @@ depressiv sein|to be depressed`
 function parse(raw: string, category: string): Card[] {
   return raw.trim().split("\n").map((line, index) => {
     const [de, en] = line.split("|");
-    const detail = category === "Irregular verbs"
-      ? irregularForms[de]
+    const detail = irregularForms[de]
           ?.replace(/^Präsens:\s*/, "")
           .replace(/\s*·\s*Präteritum:\s*/, ", ")
           .replace(/\s*·\s*Perfekt:\s*/, ", ")
-      : undefined;
+      ?? undefined;
     return { id: `${category}-${index}`, de, en, category, detail };
   });
 }
 
 export const cards: Card[] = [
   ...parse(irregular, "Irregular verbs"),
+  ...parse(dativeVerbs, "Verbs + dative"),
+  ...parse(dativeAccusativeVerbs, "Verbs + dative and accusative"),
   ...parse(verbPrep, "Verbs + prepositions"),
   ...parse(adjectivePrep, "Adjectives + prepositions"),
   ...parse(nounPrep, "Nouns + prepositions"),

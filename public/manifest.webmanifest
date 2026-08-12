@@ -6,8 +6,8 @@
   "scope": "/woertersee/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#f4f0e8",
-  "theme_color": "#214f3d",
+  "background_color": "#f6f5f0",
+  "theme_color": "#0b2454",
   "icons": [
     { "src": "woertersee-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" },
     { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }

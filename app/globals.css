@@ -153,38 +153,45 @@ footer { max-width:1160px; margin:0 auto; border-top:1px solid var(--line); padd
 @media(max-width:560px){.session{display:none}.hero,.landingHero{padding:38px 0 28px}h1{font-size:43px;letter-spacing:-2px}.startOptions article{padding:25px 18px}.catalogHeader{align-items:stretch;flex-direction:column}.catalogSelectionBar{flex-wrap:wrap}.catalogSelectionBar span{width:100%}.catalogWords>label{grid-template-columns:auto 1fr}.catalogWords>label>span:last-child{grid-column:2}.resumeBanner{display:grid;grid-template-columns:1fr 1fr}.resumeBanner div{grid-column:1/-1}.lifetimeNumbers{gap:15px}.addWordLanding{grid-template-columns:1fr}.addWordLanding>.addWordButton{width:100%}.landingAddForm,.wordEditGrid,.wordTools{grid-template-columns:1fr}.personalWord{grid-template-columns:1fr}.wordSummary{grid-template-columns:1fr}.wordManagerActions button{flex:1}.progressSettings details div{flex-direction:column}.mistakeList>div{grid-template-columns:1fr}.gameComplete{padding:35px 18px}.gameComplete .resultLifetime{flex-direction:column}.landingFooter{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.landingFooter p{grid-column:1/-1;margin:0}.workspace{gap:15px}.controls{display:grid;grid-template-columns:1fr}.card{min-height:390px;padding:18px}.word h2{font-size:36px}.actions{position:sticky;bottom:10px;z-index:3}.actions button{padding:12px 9px}.actions small{display:none}footer{flex-direction:column;gap:8px}.gameBuilder{padding:25px 18px}.categoryGrid{grid-template-columns:1fr}.headerActions>button{padding:8px}}
 
 /* WörterSee editorial refresh */
-:root { --cream:#f2efe7; --paper:#fbfaf6; --ink:#132019; --green:#173f31; --orange:#e9683e; --line:#cbc7bc; }
-body { background-color:var(--cream); background-image:linear-gradient(90deg,#173f3105 1px,transparent 1px),linear-gradient(#173f3104 1px,transparent 1px); background-size:28px 28px; }
-.topbar { height:68px; border-bottom:1px solid #bdb9ae; background:#f2efe7e8; backdrop-filter:blur(12px); }
+:root { --cream:#f6f5f0; --paper:#ffffff; --ink:#071a3d; --green:#0b2454; --orange:#f5c400; --line:#cbd2df; --gold:#d6a91f; --blue:#0b2454; }
+body { background-color:var(--cream); background-image:linear-gradient(90deg,#0b245406 1px,transparent 1px),linear-gradient(#0b245404 1px,transparent 1px); background-size:28px 28px; }
+.topbar { height:68px; border-bottom:3px solid var(--orange); background:#fffffff0; backdrop-filter:blur(12px); }
 .brand { font-size:29px; letter-spacing:-1.7px; }.brand span { font-style:italic; font-weight:400; }
 .headerActions>button { border:0; border-bottom:1px solid var(--ink); border-radius:0; padding:5px 0; background:transparent; color:var(--ink); text-transform:uppercase; letter-spacing:1px; }
 .session { text-transform:uppercase; letter-spacing:1px; font-size:9px; }
 .landingHero { padding:86px 0 54px; border-bottom:1px solid var(--line); }
 .homeKicker,.methodLabel { margin:0 0 13px; color:#6d756f; font-size:9px; font-weight:800; letter-spacing:1.8px; }
-.landingHero h1 { max-width:790px; font-size:clamp(54px,7vw,92px); line-height:.91; letter-spacing:-5px; }.landingHero h1 em { color:var(--orange); }
+.landingHero h1 { max-width:790px; font-size:clamp(54px,7vw,92px); line-height:.91; letter-spacing:-5px; }.landingHero h1 em { color:var(--gold); }
 .landingHero .intro { max-width:470px; font:16px/1.55 Georgia,serif; }
 .startOptions { gap:0; margin-top:34px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
 .startOptions article { min-height:410px; padding:30px 26px; border:0; border-right:1px solid var(--line); border-radius:0; background:transparent; box-shadow:none; }
-.startOptions article:last-child { border-right:0; }.startOptions article:hover { background:#fbfaf680; }
+.startOptions article:last-child { border-right:0; }.startOptions article:hover { background:#ffffffb8; }
 .startOptions article h2 { max-width:260px; font-size:31px; letter-spacing:-1px; }.startOptions article>p:not(.methodLabel) { max-width:280px; font-size:12px; }
 .methodMark { width:38px; height:38px; margin-bottom:36px; display:grid; place-items:center; border:1px solid var(--ink); border-radius:50%; font:italic 15px Georgia,serif; }
 .purposeStarts { border-top:1px solid var(--line); gap:0; }.purposeStarts button { padding:14px 2px; border:0; border-bottom:1px solid var(--line); border-radius:0; background:transparent; }.purposeStarts button:hover { color:var(--orange); }.purposeStarts span { font-family:Georgia,serif; font-size:13px; }
 .scopeChoice button,.categoryGrid label,.quickCounts button { border-radius:2px; }.pickWordsCard { background:transparent !important; }.pickWordsSummary { border-top:1px solid var(--line); }
-.openCatalog,.startGame { border-radius:2px; background:var(--ink); }.optionNumber { display:none; }
+.openCatalog,.startGame { border-radius:2px; background:var(--blue); color:white; }.openCatalog:hover,.startGame:hover { background:var(--gold); color:var(--ink); }.optionNumber { display:none; }
 .resumeBanner { border-radius:2px; box-shadow:none; }
 .wordCatalog { border-radius:0; border-left:0; border-right:0; box-shadow:none; }.catalogSelectionBar { border-radius:0; }.catalogCategories article,.catalogCategoryHead,.selectGroup { border-radius:0; }
-.lifetimeScore { border-radius:0; background:var(--ink); }.lifetimeScore .methodLabel { color:#aebcb5; }.lifetimeScore>button { border-radius:2px; }
+.lifetimeScore { border-radius:0; background:var(--blue); border-top:4px solid var(--orange); }.lifetimeScore .methodLabel { color:#d7dfec; }.lifetimeScore>button { border-radius:2px; color:var(--ink); }
 .addWordLanding,.myWordsSection { border-radius:0; box-shadow:none; }.addWordLanding { background:#e7e2d7; }
 .playHeader { max-width:900px; margin:46px auto 22px; display:flex; justify-content:space-between; color:#69716c; font-size:10px; text-transform:uppercase; letter-spacing:1.2px; }.playHeader i { padding:0 8px; font-style:normal; }
 .gameProgress { max-width:900px; height:2px; margin:0 auto 28px; }.gameProgress span { display:none; }
 .workspace { max-width:900px; grid-template-columns:minmax(0,1fr) 190px; gap:22px; }
 .playSettings { grid-column:1/-1; position:relative; text-align:right; }.playSettings summary { list-style:none; cursor:pointer; color:#69716c; font-size:10px; text-transform:uppercase; letter-spacing:1px; }.playSettings summary::-webkit-details-marker { display:none; }.playSettings[open] .controls { display:flex; }.playSettings .controls { position:absolute; right:0; top:28px; z-index:5; width:260px; padding:14px; display:none; gap:10px; border:1px solid var(--line); background:var(--paper); box-shadow:0 12px 30px #10201818; text-align:left; }
-.card { grid-column:1; min-height:500px; border-radius:3px; border-color:#aaa69b; padding:25px 32px 20px; box-shadow:6px 7px 0 #d7d2c7; background-color:var(--paper); background-image:linear-gradient(#173f3103 1px,transparent 1px); background-size:100% 24px; }
-.card:hover { transform:translateY(-2px); box-shadow:6px 10px 0 #d7d2c7; }.card.flipped { background-color:#f8f3e8; }
+.card { grid-column:1; min-height:500px; border-radius:3px; border-color:#9da9bd; padding:25px 32px 20px; box-shadow:6px 7px 0 #d9b62f; background-color:var(--paper); background-image:linear-gradient(#0b245404 1px,transparent 1px); background-size:100% 24px; }
+.card:hover { transform:translateY(-2px); box-shadow:6px 10px 0 #d9b62f; }.card.flipped { background-color:#fffaf0; }
 .cardTop span { padding:0; border-radius:0; background:transparent; color:#666e68; letter-spacing:.8px; }.cardTop small { font-family:Georgia,serif; }
-.word h2 { font-size:clamp(43px,6vw,72px); letter-spacing:-2.5px; }.word p { font:600 17px/1.5 Georgia,serif; }
+.word h2 { color:var(--blue); font-size:clamp(43px,6vw,72px); letter-spacing:-2.5px; }.word p { color:#9b7410; font:600 17px/1.5 Georgia,serif; }
 .actions { grid-column:2; padding-top:146px; }.actions button { border-radius:2px; box-shadow:none; }.actions button>span { border-radius:2px; font:700 13px Georgia,serif; }
-.finishGameBelow { grid-column:1/3; border-radius:2px; box-shadow:none; }.gameComplete { grid-column:1/3; border-radius:3px; box-shadow:6px 7px 0 #d7d2c7; }
+.finishGameBelow { grid-column:1/3; border-radius:2px; color:var(--ink); box-shadow:none; }.gameComplete { grid-column:1/3; border-radius:3px; box-shadow:6px 7px 0 #d9b62f; }
 footer { max-width:900px; }
 @media(max-width:900px){.landingHero h1{letter-spacing:-3px}.startOptions article{border-right:0;border-bottom:1px solid var(--line);min-height:auto}.startOptions article:last-child{border-bottom:0}.methodMark{margin-bottom:22px}.workspace{grid-template-columns:1fr}.playHeader,.gameProgress{margin-left:20px;margin-right:20px}.playSettings{grid-column:1}.card{grid-column:1}.actions{grid-column:1;padding-top:0}.finishGameBelow,.gameComplete{grid-column:1}.playSettings .controls{position:static;width:100%;margin-top:10px}.actions button{justify-content:center}.playHeader{margin-top:28px}}
-@media(max-width:560px){.landingHero{padding-top:55px}.landingHero h1{font-size:51px}.playHeader{font-size:8px}.card{min-height:430px;box-shadow:4px 5px 0 #d7d2c7}.word h2{font-size:42px}.actions{position:static}.actions button>span{width:28px;height:28px}.startOptions article{padding:28px 4px}.startOptions{margin-left:20px;margin-right:20px}.catalogHeaderTools{flex-direction:column}.catalogHeaderTools button{padding:10px}}
+@media(max-width:560px){.landingHero{padding-top:55px}.landingHero h1{font-size:51px}.playHeader{font-size:8px}.card{min-height:430px;box-shadow:4px 5px 0 #d9b62f}.word h2{font-size:42px}.actions{position:static}.actions button>span{width:28px;height:28px}.startOptions article{padding:28px 4px}.startOptions{margin-left:20px;margin-right:20px}.catalogHeaderTools{flex-direction:column}.catalogHeaderTools button{padding:10px}}
+
+/* semantic accents stay familiar while the product palette remains navy and yellow */
+.scopeChoice button.active,.categoryGrid label.selected,.catalogWords>label.selected { border-color:var(--gold); background:#fff6cc; box-shadow:inset 3px 0 0 var(--orange); }
+.catalogSelectionBar { background:var(--blue); border-bottom:3px solid var(--orange); }.catalogSelectionBar .playSelection { color:var(--ink); }
+.resumeBanner { background:#fff6cc; border-color:#d9b62f; }.myWordsToggle strong,.gameComplete .resultLifetime { background:#fff6cc; }
+.segmented .active { background:var(--blue); color:white; }.gameProgress div { background:var(--orange); }
+.miss span { color:#9c3f35; background:#f8e7e1; }.know span { color:#286146; background:#e2eee5; }

@@ -187,6 +187,18 @@ export default function Home() {
   const sessionCorrect = Object.values(sessionMarks).filter((value) => value === "correct").length;
   const sessionDone = Object.keys(sessionMarks).length;
 
+  function restartDeck(onlyMistakes = false) {
+    if (!gameCards) return;
+    const nextCards = onlyMistakes ? gameCards.filter((item) => sessionMarks[item.id] === "review") : gameCards;
+    setGameCards(shuffled(nextCards));
+    setSessionMarks({});
+    setCategory("All");
+    setFilter("all");
+    setDrawMode("random");
+    setCurrent(0);
+    setFlipped(false);
+  }
+
   if (!gameCards) return (
     <main>
       <header className="topbar"><a className="brand" href="#">Wörter<span>see</span></a><div className="session"><span className="pulse" /> Your vocabulary lake <strong>{cards.length}</strong> cards</div></header>
@@ -303,7 +315,11 @@ export default function Home() {
           <p className="eyebrow">SESSION COMPLETE</p><h2>You finished the lake.</h2>
           <p>Every card in this game was shown exactly once.</p>
           <div><span><b>{gameCards.length}</b><small>Cards</small></span><span><b>{sessionCorrect}</b><small>Got it</small></span><span><b>{sessionReview}</b><small>Review</small></span></div>
-          <button onClick={() => { setGameCards(null); setSessionMarks({}); setCurrent(0); }}>Back to home</button>
+          <div className="completeActions">
+            {sessionReview > 0 && <button className="reviewMistakes" onClick={() => restartDeck(true)}>Review my mistakes · {sessionReview}</button>}
+            <button className="replayDeck" onClick={() => restartDeck(false)}>Play this deck again</button>
+            <button className="backHome" onClick={() => { setGameCards(null); setSessionMarks({}); setCurrent(0); }}>Back to home</button>
+          </div>
         </div> : <div className="empty"><b>This filtered pool is complete.</b><p>Choose “All cards” or another category to continue the game.</p></div>}
       </section>
       <footer><span>Complete deck · {cards.length} cards · Random by default</span><span>Choose A–Z for alphabetical order. Progress is saved on this device.</span></footer>

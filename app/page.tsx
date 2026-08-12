@@ -203,6 +203,17 @@ export default function Home() {
           <button className="startGame" disabled={!gameCategories.length || gameCount < 1} onClick={startCustomGame}>Start balanced game · {Math.min(gameCount || 0, cards.filter((item) => gameCategories.includes(item.category)).length)} cards</button>
         </article>
       </section>
+      <section className="addWordLanding">
+        <div><p className="eyebrow">PERSONAL VOCABULARY</p><h2>Add your own word.</h2><p>Save a German–English card directly to one of the category pools. It stays on this device.</p></div>
+        <button className="addWordButton" onClick={() => setAdding((value) => !value)}>{adding ? "× Close" : "+ Add my word"}</button>
+        {adding && <form className="addForm landingAddForm" onSubmit={addCustomCard}>
+          <label>German<input value={newGerman} onChange={(e) => setNewGerman(e.target.value)} placeholder="e.g. die Aussicht" autoFocus required /></label>
+          <label>English<input value={newEnglish} onChange={(e) => setNewEnglish(e.target.value)} placeholder="e.g. prospect" required /></label>
+          <label>Category<select value={newCategory} onChange={(e) => setNewCategory(e.target.value)}><option>My words</option>{[...new Set(builtInCards.map((item) => item.category))].map((item) => <option key={item}>{item}</option>)}</select></label>
+          <label>Note <small>optional</small><input value={newNote} onChange={(e) => setNewNote(e.target.value)} placeholder="Grammar or example" /></label>
+          <button type="submit">Add to my pool</button><p>Saved only in this browser.</p>
+        </form>}
+      </section>
       <section className="landingFooter"><div><b>{cards.length}</b><span>Total words</span></div><div><b>{categories.length}</b><span>Categories</span></div><div><b>{customCards.length}</b><span>My words</span></div><p>Your progress and personal words stay saved in this browser.</p></section>
     </main>
   );
@@ -248,18 +259,6 @@ export default function Home() {
           <div className="segmented"><button className={direction === "de-en" ? "active" : ""} onClick={() => setDirection("de-en")}>DE → EN</button><button className={direction === "en-de" ? "active" : ""} onClick={() => setDirection("en-de")}>EN → DE</button></div>
           <div className="segmented mode"><button className={drawMode === "random" ? "active" : ""} onClick={() => { setDrawMode("random"); resetDraw(category, filter, "random"); }}>↝ Random</button><button className={drawMode === "alphabetical" ? "active" : ""} onClick={() => { setDrawMode("alphabetical"); resetDraw(category, filter, "alphabetical"); }}>A–Z</button></div>
           <div className="filter"><button className={filter === "all" ? "active" : ""} onClick={() => { setFilter("all"); resetDraw(category, "all"); }}>All cards</button>{drawMode === "random" && <button onClick={shuffle}>↝ Draw another</button>}</div>
-          <button className="addWordButton" onClick={() => setAdding((value) => !value)}>{adding ? "× Close" : "+ Add my word"}</button>
-          {adding && <form className="addForm" onSubmit={addCustomCard}>
-            <label>German<input value={newGerman} onChange={(e) => setNewGerman(e.target.value)} placeholder="e.g. die Aussicht" autoFocus required /></label>
-            <label>English<input value={newEnglish} onChange={(e) => setNewEnglish(e.target.value)} placeholder="e.g. prospect" required /></label>
-            <label>Category<select value={newCategory} onChange={(e) => setNewCategory(e.target.value)}>
-              <option>My words</option>
-              {[...new Set(builtInCards.map((item) => item.category))].map((item) => <option key={item}>{item}</option>)}
-            </select></label>
-            <label>Note <small>optional</small><input value={newNote} onChange={(e) => setNewNote(e.target.value)} placeholder="Grammar or example" /></label>
-            <button type="submit">Add to my pool</button>
-            <p>Saved only in this browser.</p>
-          </form>}
         </div>
 
         {card ? <>

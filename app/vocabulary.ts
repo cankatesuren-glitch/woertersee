@@ -1,4 +1,5 @@
 import { irregularForms } from "./irregular-forms";
+import { chapterAdditions } from "./chapter-additions";
 
 export type Card = { id: string; de: string; en: string; category: string; detail?: string; example?: string };
 
@@ -1599,5 +1600,7 @@ export const cards: Card[] = [
   ...parse(adjectivePrep, "Adjectives + prepositions"),
   ...parse(nounPrep, "Nouns + prepositions"),
   ...parse(nounVerb, "Noun–verb combinations"),
-  ...Object.entries(chapters).flatMap(([category, raw]) => parse(raw, category)),
+  ...Object.entries(chapters).flatMap(([category, raw]) =>
+    parse(`${raw}\n${chapterAdditions[category] ?? ""}`.trim(), category)
+  ),
 ];

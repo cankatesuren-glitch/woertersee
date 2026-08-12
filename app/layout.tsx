@@ -5,8 +5,9 @@ export const metadata: Metadata = {
   title: "WörterSee — German Vocabulary Game",
   description: "Learn German vocabulary with smart flashcard pools and spaced review.",
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: "/woertersee/woertersee-icon.svg",
+    shortcut: "/woertersee/favicon.svg",
+    apple: "/woertersee/apple-touch-icon.png",
   },
 };
 

@@ -1,6 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="108" fill="#f4f0e8"/>
-  <circle cx="256" cy="256" r="166" fill="#214f3d"/>
-  <path d="M114 278c52-42 92-42 142 0s90 42 142 0v62c-52 42-92 42-142 0s-90-42-142 0z" fill="#ee6d3e"/>
-  <text x="256" y="255" text-anchor="middle" fill="#fffdf8" font-family="Georgia,serif" font-size="184" font-weight="700">W</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+  <title id="title">WörterSee</title>
+  <desc id="description">A navy WörterSee monogram with golden umlaut dots and lake waves.</desc>
+  <rect width="512" height="512" rx="112" fill="#0B2454"/>
+  <path d="M64 344c46-34 91-34 137 0s91 34 137 0 75-34 110-13v117H64V344Z" fill="#F4C430"/>
+  <path d="M64 382c46-34 91-34 137 0s91 34 137 0 75-34 110-13v79H64V382Z" fill="#FFFDF7"/>
+  <path d="M64 420c46-34 91-34 137 0s91 34 137 0 75-34 110-13v41H64V420Z" fill="#0B2454"/>
+  <circle cx="218" cy="111" r="19" fill="#F4C430"/>
+  <circle cx="294" cy="111" r="19" fill="#F4C430"/>
+  <path d="M123 152h72v20h-14l44 131 31-94-13-37h-18v-20h79v20h-17l46 131 42-131h-22v-20h68v20h-17l-67 189h-39l-31-89-32 89h-39l-68-189h-25v-20Z" fill="#FFFDF7"/>
 </svg>

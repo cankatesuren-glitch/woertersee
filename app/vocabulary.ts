@@ -1,3 +1,5 @@
+import { irregularForms } from "./irregular-forms";
+
 export type Card = { id: string; de: string; en: string; category: string; detail?: string; example?: string };
 
 const irregular = `
@@ -1587,7 +1589,7 @@ depressiv sein|to be depressed`
 function parse(raw: string, category: string): Card[] {
   return raw.trim().split("\n").map((line, index) => {
     const [de, en] = line.split("|");
-    return { id: `${category}-${index}`, de, en, category };
+    return { id: `${category}-${index}`, de, en, category, detail: category === "Irregular verbs" ? irregularForms[de] : undefined };
   });
 }
 

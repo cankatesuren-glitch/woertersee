@@ -33,6 +33,7 @@ export default function Home() {
   const [showCatalog, setShowCatalog] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState("");
   const [openCatalogCategories, setOpenCatalogCategories] = useState<string[]>([]);
+  const [catalogSelection, setCatalogSelection] = useState<string[]>([]);
   const [showInstallHelp, setShowInstallHelp] = useState(false);
   const cards = useMemo(() => [...builtInCards, ...customCards], [customCards]);
   const categories = useMemo(() => [...new Set(cards.map((item) => item.category))], [cards]);
@@ -275,6 +276,22 @@ export default function Home() {
     setOpenCatalogCategories((items) => items.includes(name) ? items.filter((item) => item !== name) : [...items, name]);
   }
 
+  function toggleCatalogCard(id: string) {
+    setCatalogSelection((items) => items.includes(id) ? items.filter((item) => item !== id) : [...items, id]);
+  }
+
+  function toggleCatalogGroup(items: Card[]) {
+    const ids = items.map((item) => item.id);
+    const allSelected = ids.every((id) => catalogSelection.includes(id));
+    setCatalogSelection((selected) => allSelected ? selected.filter((id) => !ids.includes(id)) : [...new Set([...selected, ...ids])]);
+  }
+
+  function startCatalogGame() {
+    const selected = shuffled(cards.filter((item) => catalogSelection.includes(item.id)));
+    if (!selected.length) return;
+    setGameCards(selected); setBaseGameCards(selected); setSessionMarks({}); setCategory("All"); setFilter("all"); setDrawMode("random"); setCurrent(0); setFlipped(false); setShowCatalog(false);
+  }
+
   const sessionReview = Object.values(sessionMarks).filter((value) => value === "review").length;
   const sessionCorrect = Object.values(sessionMarks).filter((value) => value === "correct").length;
   const sessionDone = Object.keys(sessionMarks).length;
@@ -375,7 +392,7 @@ export default function Home() {
       </section>
       <section className="progressSettings"><details><summary>Progress settings</summary><div><button disabled={!seenCards.length} onClick={resetSeenHistory}>Reset unseen history</button><button disabled={!Object.keys(lifetimeResults).length} onClick={() => { if (window.confirm("Reset Known and Difficult progress? Your personal words will stay.")) { setLifetimeResults({}); setProgress(emptyProgress); } }}>Reset learning progress</button><button className="danger" onClick={() => { if (window.confirm("Reset all progress and unseen history? Your personal words will stay.")) { setSeenCards([]); setLifetimeResults({}); setProgress(emptyProgress); localStorage.removeItem("woertersee-active-session-v1"); setSavedSession(null); } }}>Reset all progress</button></div></details></section>
       <section className="landingFooter"><button className="catalogTrigger" onClick={() => setShowCatalog((value) => !value)}><b>{cards.length}</b><span>Total words · {showCatalog ? "Close" : "View all"}</span></button><div><b>{categories.length}</b><span>Categories</span></div><div><b>{customCards.length}</b><span>My words</span></div><p>Your progress and personal words stay saved in this browser.</p></section>
-      {showCatalog && <section className="wordCatalog"><div className="catalogHeader"><div><p className="eyebrow">COMPLETE WORD LAKE</p><h2>All {cards.length} words.</h2></div><input value={catalogSearch} onChange={(e) => setCatalogSearch(e.target.value)} placeholder="Search German, English or category" /></div><div className="catalogCategories">{categories.map((name) => { const items = catalogCards.filter((item) => item.category === name); if (!items.length) return null; const open = openCatalogCategories.includes(name) || Boolean(catalogSearch); return <article key={name}><button onClick={() => toggleCatalogCategory(name)}><span><b>{name}</b><small>{items.length} words</small></span><i>{open ? "−" : "+"}</i></button>{open && <div className="catalogWords">{items.slice().sort((a,b) => a.de.localeCompare(b.de,"de")).map((item) => <div key={item.id}><span><b>{item.de}</b><small>{item.detail}</small></span><span>{item.en}</span></div>)}</div>}</article>; })}</div></section>}
+      {showCatalog && <section className="wordCatalog"><div className="catalogHeader"><div><p className="eyebrow">COMPLETE WORD LAKE</p><h2>All {cards.length} words.</h2><small>Select whole categories or individual words to create a game.</small></div><input value={catalogSearch} onChange={(e) => setCatalogSearch(e.target.value)} placeholder="Search German, English or category" /></div><div className="catalogSelectionBar"><span><b>{catalogSelection.length}</b> words selected</span><button disabled={!catalogSelection.length} onClick={() => setCatalogSelection([])}>Clear</button><button className="playSelection" disabled={!catalogSelection.length} onClick={startCatalogGame}>Play selected words</button></div><div className="catalogCategories">{categories.map((name) => { const items = catalogCards.filter((item) => item.category === name); if (!items.length) return null; const open = openCatalogCategories.includes(name) || Boolean(catalogSearch); const selectedCount = items.filter((item) => catalogSelection.includes(item.id)).length; return <article key={name}><div className="catalogCategoryHead"><button onClick={() => toggleCatalogCategory(name)}><span><b>{name}</b><small>{items.length} words · {selectedCount} selected</small></span><i>{open ? "−" : "+"}</i></button><button className="selectGroup" onClick={() => toggleCatalogGroup(items)}>{selectedCount === items.length ? "Deselect group" : "Select group"}</button></div>{open && <div className="catalogWords">{items.slice().sort((a,b) => a.de.localeCompare(b.de,"de")).map((item) => <label key={item.id} className={catalogSelection.includes(item.id) ? "selected" : ""}><input type="checkbox" checked={catalogSelection.includes(item.id)} onChange={() => toggleCatalogCard(item.id)}/><span><b>{item.de}</b><small>{item.detail}</small></span><span>{item.en}</span></label>)}</div>}</article>; })}</div></section>}
     </main>
   );
 

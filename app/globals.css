@@ -33,6 +33,9 @@ h1 em { color:var(--green); font-weight:400; }
 .landingCounts b,.landingCounts span { display:block; }
 .landingCounts b { font:700 27px Georgia,serif; }.landingCounts span { margin-top:4px; text-transform:uppercase; letter-spacing:1px; font-size:9px; }
 .landingCategories { max-height:245px; }
+.scopeChoice { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:20px 0; }
+.scopeChoice button { padding:12px; border:1px solid var(--line); border-radius:5px; background:white; text-align:left; cursor:pointer; }.scopeChoice button.active { border-color:var(--green); background:#edf0e7; box-shadow:inset 0 0 0 1px var(--green); }
+.scopeChoice b,.scopeChoice small { display:block; }.scopeChoice b { font-size:12px; }.scopeChoice small { margin-top:4px; color:#7e8680; font-size:9px; }
 .landingFooter { max-width:1160px; margin:0 auto 40px; padding:24px 0; border-top:1px solid var(--line); display:flex; gap:45px; align-items:center; }
 .landingFooter div b,.landingFooter div span { display:block; }.landingFooter div b { font:700 25px Georgia,serif; }.landingFooter div span { color:#818882; font-size:10px; text-transform:uppercase; letter-spacing:1px; }
 .landingFooter p { margin-left:auto; color:#818882; font-size:11px; }

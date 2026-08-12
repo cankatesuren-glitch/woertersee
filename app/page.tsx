@@ -9,6 +9,7 @@ const emptyProgress = Object.fromEntries(builtInCards.map((card) => [card.id, { 
 
 export default function Home() {
   const [progress, setProgress] = useState<Record<string, { status: Status; streak: number }>>(emptyProgress);
+  const [seenCards, setSeenCards] = useState<string[]>([]);
   const [customCards, setCustomCards] = useState<Card[]>([]);
   const [category, setCategory] = useState("All");
   const [direction, setDirection] = useState<"de-en" | "en-de">("de-en");
@@ -28,6 +29,7 @@ export default function Home() {
   const categories = useMemo(() => [...new Set(cards.map((item) => item.category))], [cards]);
   const [gameSetup, setGameSetup] = useState(false);
   const [gameCount, setGameCount] = useState(200);
+  const [gameScope, setGameScope] = useState<"unseen" | "all">("unseen");
   const [gameCategories, setGameCategories] = useState<string[]>([]);
   const [gameCards, setGameCards] = useState<Card[] | null>(null);
   const [baseGameCards, setBaseGameCards] = useState<Card[] | null>(null);
@@ -39,6 +41,8 @@ export default function Home() {
     if (saved) setProgress((base) => ({ ...base, ...JSON.parse(saved) }));
     const savedCustom = localStorage.getItem("woertersee-custom-cards-v1");
     if (savedCustom) setCustomCards(JSON.parse(savedCustom));
+    const savedSeen = localStorage.getItem("woertersee-seen-cards-v1");
+    if (savedSeen) setSeenCards(JSON.parse(savedSeen));
     setCurrent(Math.floor(Math.random() * builtInCards.length));
     setReady(true);
   }, []);
@@ -50,6 +54,10 @@ export default function Home() {
   useEffect(() => {
     if (ready) localStorage.setItem("woertersee-custom-cards-v1", JSON.stringify(customCards));
   }, [customCards, ready]);
+
+  useEffect(() => {
+    if (ready) localStorage.setItem("woertersee-seen-cards-v1", JSON.stringify(seenCards));
+  }, [seenCards, ready]);
 
   const visible = useMemo(() => {
     const result = activeCards.filter((card) =>
@@ -84,6 +92,7 @@ export default function Home() {
 
   function mark(known: boolean) {
     if (!card) return;
+    setSeenCards((items) => items.includes(card.id) ? items : [...items, card.id]);
     setSessionMarks((items) => ({ ...items, [card.id]: known ? "correct" : "review" }));
     setProgress((prev) => {
       const old = prev[card.id] ?? { status: "new" as Status, streak: 0 };
@@ -151,7 +160,8 @@ export default function Home() {
 
   function startCustomGame() {
     const selected = gameCategories.length ? gameCategories : categories;
-    const pools = selected.map((name) => shuffled(cards.filter((item) => item.category === name))).filter((pool) => pool.length);
+    const eligibleCards = gameScope === "unseen" ? cards.filter((item) => !seenCards.includes(item.id)) : cards;
+    const pools = selected.map((name) => shuffled(eligibleCards.filter((item) => item.category === name))).filter((pool) => pool.length);
     const target = Math.min(Math.max(1, gameCount), pools.reduce((sum, pool) => sum + pool.length, 0));
     const chosen: Card[] = [];
     let round = 0;
@@ -222,11 +232,12 @@ export default function Home() {
         <article className="customStartCard">
           <span className="optionNumber">02</span><p className="eyebrow">BUILD A GAME</p>
           <h2>Make it your own.</h2><p>Set your deck size and choose exactly which categories should be included.</p>
+          <div className="scopeChoice"><button className={gameScope === "unseen" ? "active" : ""} onClick={() => setGameScope("unseen")}><b>Unseen only</b><small>Words you have never answered</small></button><button className={gameScope === "all" ? "active" : ""} onClick={() => setGameScope("all")}><b>All words</b><small>Include previously played words</small></button></div>
           <label className="countLabel">Number of cards<input type="number" min="1" max={cards.length} value={gameCount} onChange={(e) => setGameCount(Number(e.target.value))} /></label>
           <div className="quickCounts">{[50,100,200,300].map((count) => <button key={count} className={gameCount === count ? "active" : ""} onClick={() => setGameCount(count)}>{count}</button>)}</div>
           <div className="categoryHeading"><b>Categories</b><button onClick={() => setGameCategories(gameCategories.length === categories.length ? [] : categories)}>{gameCategories.length === categories.length ? "Clear all" : "Select all"}</button></div>
           <div className="categoryGrid landingCategories">{categories.map((item) => <label key={item} className={gameCategories.includes(item) ? "selected" : ""}><input type="checkbox" checked={gameCategories.includes(item)} onChange={() => toggleGameCategory(item)} /><span>{item}</span><small>{cards.filter((card) => card.category === item).length}</small></label>)}</div>
-          <button className="startGame" disabled={!gameCategories.length || gameCount < 1} onClick={startCustomGame}>Start balanced game · {Math.min(gameCount || 0, cards.filter((item) => gameCategories.includes(item.category)).length)} cards</button>
+          <button className="startGame" disabled={!gameCategories.length || gameCount < 1 || !cards.some((item) => gameCategories.includes(item.category) && (gameScope === "all" || !seenCards.includes(item.id)))} onClick={startCustomGame}>Start balanced game · {Math.min(gameCount || 0, cards.filter((item) => gameCategories.includes(item.category) && (gameScope === "all" || !seenCards.includes(item.id))).length)} cards</button>
         </article>
       </section>
       <section className="addWordLanding">

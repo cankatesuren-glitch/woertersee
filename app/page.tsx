@@ -83,6 +83,19 @@ export default function Home() {
     else localStorage.removeItem("woertersee-active-session-v1");
   }, [ready, gameCards, baseGameCards, sessionMarks]);
 
+  useEffect(() => {
+    if (!gameCards) return;
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) return;
+      if (event.code === "Space") { event.preventDefault(); setFlipped((value) => !value); }
+      if (event.key === "1" && flipped) mark(false);
+      if (event.key === "2" && flipped) mark(true);
+      if (event.key === "Escape" && window.confirm("Finish this game and return home?")) goHome();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [gameCards, flipped, current]);
+
   const visible = useMemo(() => {
     const result = activeCards.filter((card) =>
       (category === "All" || card.category === category) &&
@@ -345,23 +358,23 @@ export default function Home() {
 
   if (!gameCards) return (
     <main>
-      <header className="topbar"><button className="brand" type="button" onClick={goHome} aria-label="Go to home page">Worter<span>See</span></button><div className="headerActions"><button onClick={() => setShowInstallHelp(true)}>Install app</button><div className="session"><span className="pulse" /> Your vocabulary lake <strong>{cards.length}</strong> cards</div></div></header>
-      {showInstallHelp && <div className="installOverlay" onClick={() => setShowInstallHelp(false)}><section className="installCard" onClick={(event) => event.stopPropagation()}><button onClick={() => setShowInstallHelp(false)}>×</button><img src="./woertersee-icon.svg" alt="WorterSee app icon"/><p className="eyebrow">INSTALL ON IPHONE</p><h2>Add WorterSee to your Home Screen</h2><ol><li>Open this page in <b>Safari</b>.</li><li>Tap the <b>Share</b> button at the bottom.</li><li>Choose <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>. WorterSee will open like an app.</li></ol><p>Your words and progress stay on this iPhone. The app can reopen without an internet connection after its first load.</p></section></div>}
+      <header className="topbar"><button className="brand" type="button" onClick={goHome} aria-label="Go to home page">Wörter<span>See</span></button><div className="headerActions"><button onClick={() => setShowInstallHelp(true)}>Install</button><div className="session">German · English <strong>{cards.length}</strong></div></div></header>
+      {showInstallHelp && <div className="installOverlay" onClick={() => setShowInstallHelp(false)}><section className="installCard" onClick={(event) => event.stopPropagation()}><button onClick={() => setShowInstallHelp(false)}>×</button><img src="./woertersee-icon.svg" alt="WörterSee app icon"/><p className="eyebrow">INSTALL ON IPHONE</p><h2>Add WörterSee to your Home Screen</h2><ol><li>Open this page in <b>Safari</b>.</li><li>Tap the <b>Share</b> button at the bottom.</li><li>Choose <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>. WörterSee will open like an app.</li></ol><p>Your words and progress stay on this iPhone. The app can reopen without an internet connection after its first load.</p></section></div>}
       <section className="landingHero">
-        <p className="eyebrow">GERMAN VOCABULARY GAME</p>
-        <h1>Choose your next<br/><em>study session.</em></h1>
-        <p className="intro">Start immediately with a balanced random deck, or create a focused game from the categories you want to practise.</p>
+        <p className="homeKicker">YOUR GERMAN WORD COLLECTION</p>
+        <h1>What do you want<br/><em>to practise today?</em></h1>
+        <p className="intro">A quiet place to collect words, practise what matters, and keep moving.</p>
       </section>
       {savedSession && <section className="resumeBanner"><div><b>Continue your game</b><span>{Object.keys(savedSession.marks).length} of {savedSession.gameIds.length} cards completed</span></div><button onClick={resumeSavedGame}>Continue</button><button className="discard" onClick={() => { localStorage.removeItem("woertersee-active-session-v1"); setSavedSession(null); }}>Discard</button></section>}
       <section className="startOptions">
         <article className="quickStartCard">
-          <span className="optionNumber">01</span><p className="eyebrow">QUICK START</p>
-          <h2>Choose a purpose.</h2><p>Continue with new words, practise difficult ones, or mix the complete lake.</p>
-          <div className="purposeStarts"><button disabled={!cards.some((item) => !seenCards.includes(item.id))} onClick={() => startUnseenGame(50)}><b>Continue unseen</b><span>{cards.filter((item) => !seenCards.includes(item.id)).length} available</span></button><button disabled={!lifetimeReview} onClick={startDifficultGame}><b>Review difficult</b><span>{lifetimeReview} available</span></button><button onClick={() => startMixedGame(50)}><b>Mixed practice</b><span>50 cards</span></button></div>
+          <span className="methodMark">↗</span><p className="methodLabel">QUICK PLAY</p>
+          <h2>Start a quick round</h2><p>Jump back in with a ready-made set.</p>
+          <div className="purposeStarts"><button disabled={!cards.some((item) => !seenCards.includes(item.id))} onClick={() => startUnseenGame(50)}><b>Continue unseen</b><span>{cards.filter((item) => !seenCards.includes(item.id)).length}</span></button><button disabled={!lifetimeReview} onClick={startDifficultGame}><b>Review difficult</b><span>{lifetimeReview}</span></button><button onClick={() => startMixedGame(50)}><b>Mixed practice</b><span>50</span></button></div>
         </article>
         <article className="customStartCard">
-          <span className="optionNumber">02</span><p className="eyebrow">BUILD A GAME</p>
-          <h2>Make it your own.</h2><p>Set your deck size and choose exactly which categories should be included.</p>
+          <span className="methodMark">≡</span><p className="methodLabel">BUILD A DECK</p>
+          <h2>Shape your session</h2><p>Choose chapters, categories and deck size.</p>
           <div className="scopeChoice"><button className={gameScope === "unseen" ? "active" : ""} onClick={() => setGameScope("unseen")}><b>Unseen only</b><small>Words you have never answered</small></button><button className={gameScope === "all" ? "active" : ""} onClick={() => setGameScope("all")}><b>All words</b><small>Include previously played words</small></button></div>
           <button className="resetUnseen" disabled={!seenCards.length} onClick={resetSeenHistory}>Reset unseen history · {seenCards.length} seen words</button>
           <label className="countLabel">Number of cards<input type="number" min="1" max={cards.length} value={gameCount} onChange={(e) => setGameCount(Number(e.target.value))} /></label>
@@ -371,15 +384,15 @@ export default function Home() {
           <button className="startGame" disabled={!gameCategories.length || gameCount < 1 || !cards.some((item) => gameCategories.includes(item.category) && (gameScope === "all" || !seenCards.includes(item.id)))} onClick={startCustomGame}>Start balanced game · {Math.min(gameCount || 0, cards.filter((item) => gameCategories.includes(item.category) && (gameScope === "all" || !seenCards.includes(item.id))).length)} cards</button>
         </article>
         <article className="pickWordsCard">
-          <span className="optionNumber">03</span><p className="eyebrow">PICK YOUR WORDS</p>
-          <h2>Choose exact cards.</h2><p>Browse the complete word lake, search by German or English, and select individual cards or whole categories.</p>
+          <span className="methodMark">Aa</span><p className="methodLabel">PICK WORDS</p>
+          <h2>Choose exact cards</h2><p>Browse the collection and select only the words you want.</p>
           <div className="pickWordsSummary"><span><b>{cards.length}</b><small>Words available</small></span><span><b>{catalogSelection.length}</b><small>Selected</small></span></div>
-          <button className="openCatalog" onClick={() => { setShowCatalog(true); requestAnimationFrame(() => document.getElementById("word-catalog")?.scrollIntoView({ behavior: "smooth" })); }}>Browse and pick words →</button>
+          <button className="openCatalog" onClick={() => { setShowCatalog(true); requestAnimationFrame(() => document.getElementById("word-catalog")?.scrollIntoView({ behavior: "smooth" })); }}>Open word index →</button>
         </article>
       </section>
       {showCatalog && <section id="word-catalog" className="wordCatalog"><div className="catalogHeader"><div><p className="eyebrow">PICK YOUR WORDS</p><h2>Choose from all {cards.length} words.</h2><small>Select whole categories or individual cards to create your exact game.</small></div><div className="catalogHeaderTools"><input value={catalogSearch} onChange={(e) => setCatalogSearch(e.target.value)} placeholder="Search German, English or category" /><button onClick={() => setShowCatalog(false)}>Close</button></div></div><div className="catalogSelectionBar"><span><b>{catalogSelection.length}</b> words selected</span><button disabled={!catalogCards.length} onClick={() => setCatalogSelection((selected) => [...new Set([...selected, ...catalogCards.map((item) => item.id)])])}>Select all visible</button><button disabled={!catalogSelection.length} onClick={() => setCatalogSelection([])}>Clear</button><button className="playSelection" disabled={!catalogSelection.length} onClick={startCatalogGame}>Start game · {catalogSelection.length}</button></div><div className="catalogCategories">{categories.map((name) => { const items = catalogCards.filter((item) => item.category === name); if (!items.length) return null; const open = openCatalogCategories.includes(name) || Boolean(catalogSearch); const selectedCount = items.filter((item) => catalogSelection.includes(item.id)).length; return <article key={name}><div className="catalogCategoryHead"><button onClick={() => toggleCatalogCategory(name)}><span><b>{name}</b><small>{items.length} words · {selectedCount} selected</small></span><i>{open ? "−" : "+"}</i></button><button className="selectGroup" onClick={() => toggleCatalogGroup(items)}>{selectedCount === items.length ? "Deselect group" : "Select group"}</button></div>{open && <div className="catalogWords">{items.slice().sort((a,b) => a.de.localeCompare(b.de,"de")).map((item) => <label key={item.id} className={catalogSelection.includes(item.id) ? "selected" : ""}><input type="checkbox" checked={catalogSelection.includes(item.id)} onChange={() => toggleCatalogCard(item.id)}/><span><b>{item.de}</b><small>{item.detail}</small></span><span>{item.en}</span></label>)}</div>}</article>; })}</div></section>}
       <section className="lifetimeScore">
-        <div><p className="eyebrow">LIFETIME SCORE</p><h2>Your unique-word progress.</h2><p>Each word is counted once according to your most recent answer.</p></div>
+        <div><p className="methodLabel">YOUR PROGRESS</p><h2>Words you have met.</h2><p>Each word is counted by your most recent answer.</p></div>
         <div className="lifetimeNumbers"><span><b>{lifetimeSeen}</b><small>Unique played</small></span><span><b>{lifetimeCorrect}</b><small>Known</small></span><span><b>{lifetimeReview}</b><small>Difficult</small></span></div>
         <button disabled={!lifetimeReview} onClick={startDifficultGame}>Practise difficult words · {lifetimeReview}</button>
       </section>
@@ -416,7 +429,7 @@ export default function Home() {
   return (
     <main>
       <header className="topbar">
-        <button className="brand" type="button" onClick={goHome} aria-label="Go to home page">Worter<span>See</span></button>
+        <button className="brand" type="button" onClick={goHome} aria-label="Go to home page">Wörter<span>See</span></button>
         <div className="headerActions"><button className="endGame" onClick={() => { setGameCards(null); setBaseGameCards(null); setSavedSession(null); setCurrent(0); setSessionMarks({}); }}>← Exit game</button><div className="session"><span className="pulse" /> Game progress <strong>{sessionDone}</strong> / {gameCards.length}</div></div>
       </header>
 
@@ -433,31 +446,16 @@ export default function Home() {
         </section>
       </div>}
 
-      <section className="hero">
-        <div>
-          <p className="eyebrow">GERMAN VOCABULARY GAME</p>
-          <h1>Flip. Recall.<br/><em>Grow your pool.</em></h1>
-          <p className="intro">Flip a card and check your answer. Difficult words stay ready for focused practice; three correct answers mark a word as known.</p>
-        </div>
-        <div className="stats sessionStats">
-          <button><b>{gameCards.length}</b><span>Deck</span></button>
-          <button><b>{sessionReview}</b><span>Review pool</span></button>
-          <button><b>{sessionCorrect}</b><span>Got it</span></button>
-        </div>
-      </section>
+      <section className="playHeader"><span>Card {Math.min(sessionDone + 1, gameCards.length)} of {gameCards.length}</span><div><b>{sessionCorrect}</b> known <i>·</i> <b>{sessionReview}</b> difficult</div></section>
 
       <section className="gameProgress" aria-label="Game progress"><div style={{width:`${Math.round((sessionDone / Math.max(gameCards.length,1))*100)}%`}} /><span>{Math.round((sessionDone / Math.max(gameCards.length,1))*100)}% complete</span></section>
 
       <section className="workspace">
-        <div className="controls">
-          <div className="segmented"><button className={direction === "de-en" ? "active" : ""} onClick={() => setDirection("de-en")}>DE → EN</button><button className={direction === "en-de" ? "active" : ""} onClick={() => setDirection("en-de")}>EN → DE</button></div>
-          <div className="segmented mode"><button className={drawMode === "random" ? "active" : ""} onClick={() => { setDrawMode("random"); resetDraw(category, filter, "random"); }}>↝ Random</button><button className={drawMode === "alphabetical" ? "active" : ""} onClick={() => { setDrawMode("alphabetical"); resetDraw(category, filter, "alphabetical"); }}>A–Z</button></div>
-          {drawMode === "random" && <button className="drawAnother" onClick={shuffle}>↝ Draw another</button>}
-        </div>
+        <details className="playSettings"><summary>Study settings</summary><div className="controls"><div className="segmented"><button className={direction === "de-en" ? "active" : ""} onClick={() => setDirection("de-en")}>DE → EN</button><button className={direction === "en-de" ? "active" : ""} onClick={() => setDirection("en-de")}>EN → DE</button></div><div className="segmented mode"><button className={drawMode === "random" ? "active" : ""} onClick={() => { setDrawMode("random"); resetDraw(category, filter, "random"); }}>Random</button><button className={drawMode === "alphabetical" ? "active" : ""} onClick={() => { setDrawMode("alphabetical"); resetDraw(category, filter, "alphabetical"); }}>A–Z</button></div>{drawMode === "random" && <button className="drawAnother" onClick={shuffle}>Draw another</button>}</div></details>
 
         {card ? <>
           <button className={`card ${flipped ? "flipped" : ""}`} onClick={() => setFlipped(!flipped)} aria-label="Flip card">
-            <div className="cardTop"><span>{card.category}</span><small>{progress[card.id]?.streak ?? 0}/3 correct</small></div>
+            <div className="cardTop"><span>{card.category}</span><small>KARTE {String(sessionDone + 1).padStart(3,"0")} · {progress[card.id]?.streak ?? 0}/3</small></div>
             <div className="word">
               <small>{flipped ? "ANSWER" : direction === "de-en" ? "GERMAN" : "ENGLISH"}</small>
               <h2>{flipped ? (direction === "de-en" ? card.en : card.de) : (direction === "de-en" ? card.de : card.en)}</h2>
@@ -468,8 +466,8 @@ export default function Home() {
             <div className="flipHint">{flipped ? "Tap to flip back" : "Tap to reveal the answer"} <span>↻</span></div>
           </button>
           <div className="actions">
-            <button className="miss" disabled={!flipped} onClick={() => mark(false)}><span>×</span><div><b>Not yet</b><small>Mark as difficult</small></div></button>
-            <button className="know" disabled={!flipped} onClick={() => mark(true)}><span>✓</span><div><b>Got it</b><small>{Math.min((progress[card.id]?.streak ?? 0) + 1, 3)}/3 toward known</small></div></button>
+            <button className="miss" disabled={!flipped} onClick={() => mark(false)}><span>1</span><div><b>Not yet</b><small>Keep practising</small></div></button>
+            <button className="know" disabled={!flipped} onClick={() => mark(true)}><span>2</span><div><b>Got it</b><small>{Math.min((progress[card.id]?.streak ?? 0) + 1, 3)}/3 toward known</small></div></button>
           </div>
           <button className="finishGameBelow" disabled={!sessionDone || sessionDone === gameCards.length} onClick={finishGameEarly}>Finish game and see results · {sessionDone} cards completed</button>
         </> : sessionDone === gameCards.length ? <div className="gameComplete">

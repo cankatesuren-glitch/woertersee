@@ -284,7 +284,7 @@ export default function Home() {
     <main>
       <header className="topbar">
         <a className="brand" href="#">Wörter<span>see</span></a>
-        <div className="headerActions"><button className="finishGame" disabled={!sessionDone || sessionDone === gameCards.length} onClick={finishGameEarly}>Finish game</button><button className="endGame" onClick={() => { setGameCards(null); setBaseGameCards(null); setCurrent(0); setSessionMarks({}); }}>← Exit game</button><div className="session"><span className="pulse" /> Game progress <strong>{sessionDone}</strong> / {gameCards.length}</div></div>
+        <div className="headerActions"><button className="endGame" onClick={() => { setGameCards(null); setBaseGameCards(null); setCurrent(0); setSessionMarks({}); }}>← Exit game</button><div className="session"><span className="pulse" /> Game progress <strong>{sessionDone}</strong> / {gameCards.length}</div></div>
       </header>
 
       {gameSetup && <div className="gameOverlay" onClick={() => setGameSetup(false)}>
@@ -339,6 +339,7 @@ export default function Home() {
             <button className="miss" disabled={!flipped} onClick={() => mark(false)}><span>×</span><div><b>Not yet</b><small>Move to review</small></div></button>
             <button className="know" disabled={!flipped} onClick={() => mark(true)}><span>✓</span><div><b>Got it</b><small>3 correct → learned</small></div></button>
           </div>
+          <button className="finishGameBelow" disabled={!sessionDone || sessionDone === gameCards.length} onClick={finishGameEarly}>Finish game and see results · {sessionDone} cards completed</button>
         </> : sessionDone === gameCards.length ? <div className="gameComplete">
           <p className="eyebrow">SESSION COMPLETE</p><h2>You finished the lake.</h2>
           <p>Your results include every card completed in this session.</p>

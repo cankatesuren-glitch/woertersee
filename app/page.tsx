@@ -226,6 +226,12 @@ export default function Home() {
     setFlipped(false);
   }
 
+  function resetSeenHistory() {
+    const confirmed = window.confirm("Are you sure? This will mark every word as unseen again. Your learned and review pools will not be changed.");
+    if (!confirmed) return;
+    setSeenCards([]);
+  }
+
   if (!gameCards) return (
     <main>
       <header className="topbar"><a className="brand" href="#">Wörter<span>see</span></a><div className="session"><span className="pulse" /> Your vocabulary lake <strong>{cards.length}</strong> cards</div></header>
@@ -244,6 +250,7 @@ export default function Home() {
           <span className="optionNumber">02</span><p className="eyebrow">BUILD A GAME</p>
           <h2>Make it your own.</h2><p>Set your deck size and choose exactly which categories should be included.</p>
           <div className="scopeChoice"><button className={gameScope === "unseen" ? "active" : ""} onClick={() => setGameScope("unseen")}><b>Unseen only</b><small>Words you have never answered</small></button><button className={gameScope === "all" ? "active" : ""} onClick={() => setGameScope("all")}><b>All words</b><small>Include previously played words</small></button></div>
+          <button className="resetUnseen" disabled={!seenCards.length} onClick={resetSeenHistory}>Reset unseen history · {seenCards.length} seen words</button>
           <label className="countLabel">Number of cards<input type="number" min="1" max={cards.length} value={gameCount} onChange={(e) => setGameCount(Number(e.target.value))} /></label>
           <div className="quickCounts">{[50,100,200,300].map((count) => <button key={count} className={gameCount === count ? "active" : ""} onClick={() => setGameCount(count)}>{count}</button>)}</div>
           <div className="categoryHeading"><b>Categories</b><button onClick={() => setGameCategories(gameCategories.length === categories.length ? [] : categories)}>{gameCategories.length === categories.length ? "Clear all" : "Select all"}</button></div>

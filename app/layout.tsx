@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Wörtersee — German Vocabulary Game",
+  title: "WorterSee — German Vocabulary Game",
   description: "Learn German vocabulary with smart flashcard pools and spaced review.",
   icons: {
     icon: "/favicon.svg",

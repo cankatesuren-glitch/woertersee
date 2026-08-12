@@ -7,7 +7,7 @@ body { margin:0; background:var(--cream); color:var(--ink); font-family:Arial, H
 button, select { font:inherit; }
 button { color:inherit; }
 .topbar { height:76px; display:flex; align-items:center; justify-content:space-between; padding:0 max(24px, calc((100vw - 1160px)/2)); border-bottom:1px solid var(--line); }
-.brand { color:var(--ink); text-decoration:none; font-family:Georgia, serif; font-size:27px; font-weight:700; letter-spacing:-1px; }
+.brand { color:var(--ink); text-decoration:none; font-family:Georgia, serif; font-size:27px; font-weight:700; letter-spacing:-1px; border:0; padding:0; background:transparent; cursor:pointer; }
 .brand span { color:var(--orange); }
 .session { font-size:13px; color:#6c746f; }
 .headerActions { display:flex; align-items:center; gap:10px; }

@@ -332,10 +332,21 @@ export default function Home() {
     setSeenCards([]);
   }
 
+  function goHome() {
+    setGameCards(null);
+    setBaseGameCards(null);
+    setSavedSession(null);
+    setSessionMarks({});
+    setCurrent(0);
+    setFlipped(false);
+    localStorage.removeItem("woertersee-active-session-v1");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   if (!gameCards) return (
     <main>
-      <header className="topbar"><a className="brand" href="#">Wörter<span>see</span></a><div className="headerActions"><button onClick={() => setShowInstallHelp(true)}>Install app</button><div className="session"><span className="pulse" /> Your vocabulary lake <strong>{cards.length}</strong> cards</div></div></header>
-      {showInstallHelp && <div className="installOverlay" onClick={() => setShowInstallHelp(false)}><section className="installCard" onClick={(event) => event.stopPropagation()}><button onClick={() => setShowInstallHelp(false)}>×</button><img src="./woertersee-icon.svg" alt="Wörtersee app icon"/><p className="eyebrow">INSTALL ON IPHONE</p><h2>Add Wörtersee to your Home Screen</h2><ol><li>Open this page in <b>Safari</b>.</li><li>Tap the <b>Share</b> button at the bottom.</li><li>Choose <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>. Wörtersee will open like an app.</li></ol><p>Your words and progress stay on this iPhone. The app can reopen without an internet connection after its first load.</p></section></div>}
+      <header className="topbar"><button className="brand" type="button" onClick={goHome} aria-label="Go to home page">Worter<span>See</span></button><div className="headerActions"><button onClick={() => setShowInstallHelp(true)}>Install app</button><div className="session"><span className="pulse" /> Your vocabulary lake <strong>{cards.length}</strong> cards</div></div></header>
+      {showInstallHelp && <div className="installOverlay" onClick={() => setShowInstallHelp(false)}><section className="installCard" onClick={(event) => event.stopPropagation()}><button onClick={() => setShowInstallHelp(false)}>×</button><img src="./woertersee-icon.svg" alt="WorterSee app icon"/><p className="eyebrow">INSTALL ON IPHONE</p><h2>Add WorterSee to your Home Screen</h2><ol><li>Open this page in <b>Safari</b>.</li><li>Tap the <b>Share</b> button at the bottom.</li><li>Choose <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>. WorterSee will open like an app.</li></ol><p>Your words and progress stay on this iPhone. The app can reopen without an internet connection after its first load.</p></section></div>}
       <section className="landingHero">
         <p className="eyebrow">GERMAN VOCABULARY GAME</p>
         <h1>Choose your next<br/><em>study session.</em></h1>
@@ -399,7 +410,7 @@ export default function Home() {
   return (
     <main>
       <header className="topbar">
-        <a className="brand" href="#">Wörter<span>see</span></a>
+        <button className="brand" type="button" onClick={goHome} aria-label="Go to home page">Worter<span>See</span></button>
         <div className="headerActions"><button className="endGame" onClick={() => { setGameCards(null); setBaseGameCards(null); setSavedSession(null); setCurrent(0); setSessionMarks({}); }}>← Exit game</button><div className="session"><span className="pulse" /> Game progress <strong>{sessionDone}</strong> / {gameCards.length}</div></div>
       </header>
 

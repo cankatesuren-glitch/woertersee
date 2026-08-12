@@ -30,6 +30,9 @@ export default function Home() {
   const [wordCategoryFilter, setWordCategoryFilter] = useState("All");
   const [wordSort, setWordSort] = useState<"newest" | "az">("newest");
   const [savedSession, setSavedSession] = useState<{ gameIds: string[]; baseIds: string[]; marks: Record<string, "review" | "correct"> } | null>(null);
+  const [showCatalog, setShowCatalog] = useState(false);
+  const [catalogSearch, setCatalogSearch] = useState("");
+  const [openCatalogCategories, setOpenCatalogCategories] = useState<string[]>([]);
   const cards = useMemo(() => [...builtInCards, ...customCards], [customCards]);
   const categories = useMemo(() => [...new Set(cards.map((item) => item.category))], [cards]);
   const [gameSetup, setGameSetup] = useState(false);
@@ -265,6 +268,11 @@ export default function Home() {
   }
 
   const displayedCustomCards = [...customCards].filter((item) => (wordCategoryFilter === "All" || item.category === wordCategoryFilter) && `${item.de} ${item.en} ${item.detail ?? ""}`.toLowerCase().includes(wordSearch.toLowerCase())).sort((a,b) => wordSort === "az" ? a.de.localeCompare(b.de,"de") : b.id.localeCompare(a.id));
+  const catalogCards = cards.filter((item) => `${item.de} ${item.en} ${item.detail ?? ""} ${item.category}`.toLowerCase().includes(catalogSearch.toLowerCase()));
+
+  function toggleCatalogCategory(name: string) {
+    setOpenCatalogCategories((items) => items.includes(name) ? items.filter((item) => item !== name) : [...items, name]);
+  }
 
   const sessionReview = Object.values(sessionMarks).filter((value) => value === "review").length;
   const sessionCorrect = Object.values(sessionMarks).filter((value) => value === "correct").length;
@@ -364,7 +372,8 @@ export default function Home() {
         </div>}
       </section>
       <section className="progressSettings"><details><summary>Progress settings</summary><div><button disabled={!seenCards.length} onClick={resetSeenHistory}>Reset unseen history</button><button disabled={!Object.keys(lifetimeResults).length} onClick={() => { if (window.confirm("Reset Known and Difficult progress? Your personal words will stay.")) { setLifetimeResults({}); setProgress(emptyProgress); } }}>Reset learning progress</button><button className="danger" onClick={() => { if (window.confirm("Reset all progress and unseen history? Your personal words will stay.")) { setSeenCards([]); setLifetimeResults({}); setProgress(emptyProgress); localStorage.removeItem("woertersee-active-session-v1"); setSavedSession(null); } }}>Reset all progress</button></div></details></section>
-      <section className="landingFooter"><div><b>{cards.length}</b><span>Total words</span></div><div><b>{categories.length}</b><span>Categories</span></div><div><b>{customCards.length}</b><span>My words</span></div><p>Your progress and personal words stay saved in this browser.</p></section>
+      <section className="landingFooter"><button className="catalogTrigger" onClick={() => setShowCatalog((value) => !value)}><b>{cards.length}</b><span>Total words · {showCatalog ? "Close" : "View all"}</span></button><div><b>{categories.length}</b><span>Categories</span></div><div><b>{customCards.length}</b><span>My words</span></div><p>Your progress and personal words stay saved in this browser.</p></section>
+      {showCatalog && <section className="wordCatalog"><div className="catalogHeader"><div><p className="eyebrow">COMPLETE WORD LAKE</p><h2>All {cards.length} words.</h2></div><input value={catalogSearch} onChange={(e) => setCatalogSearch(e.target.value)} placeholder="Search German, English or category" /></div><div className="catalogCategories">{categories.map((name) => { const items = catalogCards.filter((item) => item.category === name); if (!items.length) return null; const open = openCatalogCategories.includes(name) || Boolean(catalogSearch); return <article key={name}><button onClick={() => toggleCatalogCategory(name)}><span><b>{name}</b><small>{items.length} words</small></span><i>{open ? "−" : "+"}</i></button>{open && <div className="catalogWords">{items.slice().sort((a,b) => a.de.localeCompare(b.de,"de")).map((item) => <div key={item.id}><span><b>{item.de}</b><small>{item.detail}</small></span><span>{item.en}</span></div>)}</div>}</article>; })}</div></section>}
     </main>
   );
 

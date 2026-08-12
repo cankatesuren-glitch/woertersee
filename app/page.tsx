@@ -10,6 +10,7 @@ const emptyProgress = Object.fromEntries(builtInCards.map((card) => [card.id, { 
 export default function Home() {
   const [progress, setProgress] = useState<Record<string, { status: Status; streak: number }>>(emptyProgress);
   const [seenCards, setSeenCards] = useState<string[]>([]);
+  const [lifetimeResults, setLifetimeResults] = useState<Record<string, "review" | "correct">>({});
   const [customCards, setCustomCards] = useState<Card[]>([]);
   const [category, setCategory] = useState("All");
   const [direction, setDirection] = useState<"de-en" | "en-de">("de-en");
@@ -43,6 +44,8 @@ export default function Home() {
     if (savedCustom) setCustomCards(JSON.parse(savedCustom));
     const savedSeen = localStorage.getItem("woertersee-seen-cards-v1");
     if (savedSeen) setSeenCards(JSON.parse(savedSeen));
+    const savedResults = localStorage.getItem("woertersee-lifetime-results-v1");
+    if (savedResults) setLifetimeResults(JSON.parse(savedResults));
     setCurrent(Math.floor(Math.random() * builtInCards.length));
     setReady(true);
   }, []);
@@ -58,6 +61,10 @@ export default function Home() {
   useEffect(() => {
     if (ready) localStorage.setItem("woertersee-seen-cards-v1", JSON.stringify(seenCards));
   }, [seenCards, ready]);
+
+  useEffect(() => {
+    if (ready) localStorage.setItem("woertersee-lifetime-results-v1", JSON.stringify(lifetimeResults));
+  }, [lifetimeResults, ready]);
 
   const visible = useMemo(() => {
     const result = activeCards.filter((card) =>
@@ -93,6 +100,7 @@ export default function Home() {
   function mark(known: boolean) {
     if (!card) return;
     setSeenCards((items) => items.includes(card.id) ? items : [...items, card.id]);
+    setLifetimeResults((items) => ({ ...items, [card.id]: known ? "correct" : "review" }));
     setSessionMarks((items) => ({ ...items, [card.id]: known ? "correct" : "review" }));
     setProgress((prev) => {
       const old = prev[card.id] ?? { status: "new" as Status, streak: 0 };
@@ -197,9 +205,25 @@ export default function Home() {
     setFlipped(false);
   }
 
+  function startDifficultGame() {
+    const difficult = shuffled(cards.filter((item) => lifetimeResults[item.id] === "review"));
+    if (!difficult.length) return;
+    setGameCards(difficult);
+    setBaseGameCards(difficult);
+    setSessionMarks({});
+    setCategory("All");
+    setFilter("all");
+    setDrawMode("random");
+    setCurrent(0);
+    setFlipped(false);
+  }
+
   const sessionReview = Object.values(sessionMarks).filter((value) => value === "review").length;
   const sessionCorrect = Object.values(sessionMarks).filter((value) => value === "correct").length;
   const sessionDone = Object.keys(sessionMarks).length;
+  const lifetimeCorrect = Object.values(lifetimeResults).filter((value) => value === "correct").length;
+  const lifetimeReview = Object.values(lifetimeResults).filter((value) => value === "review").length;
+  const lifetimeSeen = Object.keys(lifetimeResults).length;
 
   function restartDeck(onlyMistakes = false) {
     if (!gameCards) return;
@@ -257,6 +281,11 @@ export default function Home() {
           <div className="categoryGrid landingCategories">{categories.map((item) => <label key={item} className={gameCategories.includes(item) ? "selected" : ""}><input type="checkbox" checked={gameCategories.includes(item)} onChange={() => toggleGameCategory(item)} /><span>{item}</span><small>{cards.filter((card) => card.category === item && (gameScope === "all" || !seenCards.includes(card.id))).length}</small></label>)}</div>
           <button className="startGame" disabled={!gameCategories.length || gameCount < 1 || !cards.some((item) => gameCategories.includes(item.category) && (gameScope === "all" || !seenCards.includes(item.id)))} onClick={startCustomGame}>Start balanced game · {Math.min(gameCount || 0, cards.filter((item) => gameCategories.includes(item.category) && (gameScope === "all" || !seenCards.includes(item.id))).length)} cards</button>
         </article>
+      </section>
+      <section className="lifetimeScore">
+        <div><p className="eyebrow">LIFETIME SCORE</p><h2>Your unique-word progress.</h2><p>Each word is counted once according to your most recent answer.</p></div>
+        <div className="lifetimeNumbers"><span><b>{lifetimeSeen}</b><small>Unique played</small></span><span><b>{lifetimeCorrect}</b><small>Known</small></span><span><b>{lifetimeReview}</b><small>Difficult</small></span></div>
+        <button disabled={!lifetimeReview} onClick={startDifficultGame}>Practise difficult words · {lifetimeReview}</button>
       </section>
       <section className="addWordLanding">
         <div><p className="eyebrow">PERSONAL VOCABULARY</p><h2>Add your own word.</h2><p>Save a German–English card directly to one of the category pools. It stays on this device.</p></div>
@@ -351,6 +380,7 @@ export default function Home() {
           <p className="eyebrow">SESSION COMPLETE</p><h2>You finished the lake.</h2>
           <p>Your results include every card completed in this session.</p>
           <div><span><b>{gameCards.length}</b><small>Cards</small></span><span><b>{sessionCorrect}</b><small>Got it</small></span><span><b>{sessionReview}</b><small>Review</small></span></div>
+          <section className="resultLifetime"><b>Lifetime unique score</b><span>{lifetimeCorrect} known · {lifetimeReview} difficult · {lifetimeSeen} played</span></section>
           <div className="completeActions">
             {sessionReview > 0 && <button className="reviewMistakes" onClick={() => restartDeck(true)}>Review my mistakes · {sessionReview}</button>}
             <button className="replayDeck" onClick={() => restartDeck(false)}>Play original deck again · {baseGameCards?.length ?? gameCards.length}</button>

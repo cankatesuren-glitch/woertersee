@@ -215,6 +215,17 @@ export default function Home() {
     setFlipped(false);
   }
 
+  function finishGameEarly() {
+    if (!gameCards || !sessionDone) return;
+    const completedDeck = gameCards.filter((item) => sessionMarks[item.id]);
+    setGameCards(completedDeck);
+    setBaseGameCards(completedDeck);
+    setCategory("All");
+    setFilter("all");
+    setCurrent(0);
+    setFlipped(false);
+  }
+
   if (!gameCards) return (
     <main>
       <header className="topbar"><a className="brand" href="#">Wörter<span>see</span></a><div className="session"><span className="pulse" /> Your vocabulary lake <strong>{cards.length}</strong> cards</div></header>
@@ -273,7 +284,7 @@ export default function Home() {
     <main>
       <header className="topbar">
         <a className="brand" href="#">Wörter<span>see</span></a>
-        <div className="headerActions"><button className="endGame" onClick={() => { setGameCards(null); setBaseGameCards(null); setCurrent(0); setSessionMarks({}); }}>← Exit game</button><div className="session"><span className="pulse" /> Game progress <strong>{sessionDone}</strong> / {gameCards.length}</div></div>
+        <div className="headerActions"><button className="finishGame" disabled={!sessionDone || sessionDone === gameCards.length} onClick={finishGameEarly}>Finish game</button><button className="endGame" onClick={() => { setGameCards(null); setBaseGameCards(null); setCurrent(0); setSessionMarks({}); }}>← Exit game</button><div className="session"><span className="pulse" /> Game progress <strong>{sessionDone}</strong> / {gameCards.length}</div></div>
       </header>
 
       {gameSetup && <div className="gameOverlay" onClick={() => setGameSetup(false)}>
@@ -330,7 +341,7 @@ export default function Home() {
           </div>
         </> : sessionDone === gameCards.length ? <div className="gameComplete">
           <p className="eyebrow">SESSION COMPLETE</p><h2>You finished the lake.</h2>
-          <p>Every card in this game was shown exactly once.</p>
+          <p>Your results include every card completed in this session.</p>
           <div><span><b>{gameCards.length}</b><small>Cards</small></span><span><b>{sessionCorrect}</b><small>Got it</small></span><span><b>{sessionReview}</b><small>Review</small></span></div>
           <div className="completeActions">
             {sessionReview > 0 && <button className="reviewMistakes" onClick={() => restartDeck(true)}>Review my mistakes · {sessionReview}</button>}

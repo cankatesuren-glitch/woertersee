@@ -12,6 +12,7 @@ button { color:inherit; }
 .headerActions { display:flex; align-items:center; gap:10px; }
 .headerActions > button { border:1px solid var(--green); background:var(--green); color:white; border-radius:4px; padding:9px 13px; font-size:11px; font-weight:700; cursor:pointer; }
 .headerActions > .endGame { background:transparent; color:var(--green); }
+.headerActions > .finishGame { background:var(--orange); border-color:var(--orange); }.headerActions > .finishGame:disabled { opacity:.35; cursor:not-allowed; }
 .session strong { color:var(--ink); }
 .pulse { display:inline-block; width:8px; height:8px; background:var(--orange); border-radius:50%; margin-right:8px; }
 .hero { max-width:1160px; margin:auto; padding:58px 0 45px; display:grid; grid-template-columns:1.3fr .7fr; align-items:end; gap:50px; }

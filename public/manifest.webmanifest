@@ -1,0 +1,15 @@
+{
+  "name": "Wörtersee — German Vocabulary",
+  "short_name": "Wörtersee",
+  "description": "Learn German vocabulary through focused flashcard games.",
+  "start_url": "/woertersee/",
+  "scope": "/woertersee/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f4f0e8",
+  "theme_color": "#214f3d",
+  "icons": [
+    { "src": "woertersee-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

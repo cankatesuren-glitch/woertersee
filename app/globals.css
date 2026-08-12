@@ -3,6 +3,7 @@
 :root { --ink:#17231e; --cream:#f4f0e8; --paper:#fffdf8; --sage:#bcc8a8; --green:#214f3d; --orange:#ee6d3e; --line:#d9d5ca; }
 * { box-sizing:border-box; }
 body { margin:0; background:var(--cream); color:var(--ink); font-family:Arial, Helvetica, sans-serif; }
+@media(display-mode:standalone){body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}.topbar{height:68px}}
 button, select { font:inherit; }
 button { color:inherit; }
 .topbar { height:76px; display:flex; align-items:center; justify-content:space-between; padding:0 max(24px, calc((100vw - 1160px)/2)); border-bottom:1px solid var(--line); }
@@ -14,6 +15,7 @@ button { color:inherit; }
 .headerActions > .endGame { background:transparent; color:var(--green); }
 .session strong { color:var(--ink); }
 .pulse { display:inline-block; width:8px; height:8px; background:var(--orange); border-radius:50%; margin-right:8px; }
+.installOverlay { position:fixed; inset:0; z-index:30; padding:20px; display:grid; place-items:center; background:#14211bd9; }.installCard { position:relative; width:min(480px,100%); padding:32px; border-radius:12px; background:var(--paper); box-shadow:0 30px 90px #0006; }.installCard > button { position:absolute; right:16px; top:12px; border:0; background:transparent; font-size:25px; cursor:pointer; }.installCard img { width:72px; height:72px; margin-bottom:20px; border-radius:16px; }.installCard h2 { margin:0 0 18px; font:700 30px/1.1 Georgia,serif; }.installCard ol { padding-left:22px; color:#56635b; line-height:1.8; }.installCard > p:last-child { margin:18px 0 0; padding-top:15px; border-top:1px solid var(--line); color:#788079; font-size:11px; line-height:1.5; }
 .hero { max-width:1160px; margin:auto; padding:58px 0 45px; display:grid; grid-template-columns:1.3fr .7fr; align-items:end; gap:50px; }
 .eyebrow { margin:0 0 14px; color:var(--orange); letter-spacing:2.4px; font-weight:800; font-size:12px; }
 h1 { margin:0; font:700 clamp(45px, 5vw, 72px)/.96 Georgia, serif; letter-spacing:-3px; }

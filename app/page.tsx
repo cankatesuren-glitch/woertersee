@@ -33,6 +33,7 @@ export default function Home() {
   const [showCatalog, setShowCatalog] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState("");
   const [openCatalogCategories, setOpenCatalogCategories] = useState<string[]>([]);
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
   const cards = useMemo(() => [...builtInCards, ...customCards], [customCards]);
   const categories = useMemo(() => [...new Set(cards.map((item) => item.category))], [cards]);
   const [gameSetup, setGameSetup] = useState(false);
@@ -316,7 +317,8 @@ export default function Home() {
 
   if (!gameCards) return (
     <main>
-      <header className="topbar"><a className="brand" href="#">Wörter<span>see</span></a><div className="session"><span className="pulse" /> Your vocabulary lake <strong>{cards.length}</strong> cards</div></header>
+      <header className="topbar"><a className="brand" href="#">Wörter<span>see</span></a><div className="headerActions"><button onClick={() => setShowInstallHelp(true)}>Install app</button><div className="session"><span className="pulse" /> Your vocabulary lake <strong>{cards.length}</strong> cards</div></div></header>
+      {showInstallHelp && <div className="installOverlay" onClick={() => setShowInstallHelp(false)}><section className="installCard" onClick={(event) => event.stopPropagation()}><button onClick={() => setShowInstallHelp(false)}>×</button><img src="./woertersee-icon.svg" alt="Wörtersee app icon"/><p className="eyebrow">INSTALL ON IPHONE</p><h2>Add Wörtersee to your Home Screen</h2><ol><li>Open this page in <b>Safari</b>.</li><li>Tap the <b>Share</b> button at the bottom.</li><li>Choose <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>. Wörtersee will open like an app.</li></ol><p>Your words and progress stay on this iPhone. The app can reopen without an internet connection after its first load.</p></section></div>}
       <section className="landingHero">
         <p className="eyebrow">GERMAN VOCABULARY GAME</p>
         <h1>Choose your next<br/><em>study session.</em></h1>

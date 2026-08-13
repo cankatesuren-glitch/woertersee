@@ -55,10 +55,14 @@ betreffen|to concern
 betreiben|to operate
 betrügen|to deceive
 sich beziehen|to refer
+beweisen|to prove
+bewegen|to move
+bewerfen|to throw at
 biegen|to bend
 bieten|to offer
 binden|to bind / tie
 bitten|to ask / request
+blasen|to blow
 bleiben|to stay
 braten|to fry / roast
 brechen|to break
@@ -66,6 +70,7 @@ brennen|to burn
 bringen|to bring
 denken|to think
 dürfen|may / to be allowed
+durchdringen|to penetrate
 eindringen|to penetrate / intrude
 einfallen|to occur to someone
 eingeben|to enter / input
@@ -87,11 +92,14 @@ entsprechen|to correspond to
 entstehen|to arise
 entwerfen|to design / draft
 erfahren|to learn / experience
+erheben|to raise
 erfinden|to invent
 sich ergeben|to result / surrender
 ergreifen|to seize
 erhalten|to receive / preserve
 erkennen|to recognize
+erklingen|to sound
+erlöschen|to expire / go out
 erscheinen|to appear
 ertragen|to endure
 sich erweisen|to prove to be

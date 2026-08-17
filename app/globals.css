@@ -137,7 +137,7 @@ blockquote { margin:25px auto 0; max-width:540px; padding-top:18px; border-top:1
 .closeBuilder { position:absolute; right:22px; top:18px; border:0; background:transparent; font-size:28px; cursor:pointer; }
 .countLabel { display:block; max-width:220px; font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:700; }
 .countLabel input { width:100%; padding:12px; margin-top:7px; border:1px solid var(--line); border-radius:4px; font-size:18px; }
-.quickCounts { display:flex; gap:7px; margin:12px 0 25px; }
+.quickCounts { display:flex; flex-wrap:wrap; gap:7px; margin:12px 0 25px; }
 .quickCounts button { border:1px solid var(--line); background:white; border-radius:20px; padding:7px 14px; cursor:pointer; font-size:12px; }
 .quickCounts .active { background:var(--green); color:white; border-color:var(--green); }
 .categoryHeading { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }

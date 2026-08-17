@@ -1,4 +1,5 @@
 import { irregularForms } from "./irregular-forms";
+import { importantIrregularVerbs } from "./important-irregular-verbs";
 import { chapterAdditions } from "./chapter-additions";
 import { dativeAccusativeVerbs, dativeVerbs } from "./verb-case-groups";
 
@@ -1610,6 +1611,11 @@ function parse(raw: string, category: string): Card[] {
 
 export const cards: Card[] = [
   ...parse(irregular, "Irregular verbs"),
+  ...importantIrregularVerbs.map((item, index) => ({
+    id: `Die wichtigsten unregelmäßigen Verben-${index}`,
+    category: "Die wichtigsten unregelmäßigen Verben",
+    ...item,
+  })),
   ...parse(dativeVerbs, "Verbs + dative"),
   ...parse(dativeAccusativeVerbs, "Verbs + dative and accusative"),
   ...parse(verbPrep, "Verbs + prepositions"),
